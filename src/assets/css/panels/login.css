@@ -1,0 +1,160 @@
+.login .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background: #060608;
+}
+
+.login-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 360px;
+    padding: 2.5rem 2rem;
+    background: #111114;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 22px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.login-logo img {
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 10px;
+    margin-bottom: 1.25rem;
+}
+
+.login-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.25;
+}
+
+.login-title .accent {
+    color: #ff7a1a;
+}
+
+.login-subtitle {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #8b8b93;
+}
+
+.ms-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    margin-top: 1.75rem;
+    background: #fff;
+    color: #111;
+    border: none;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.ms-btn:hover {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+}
+
+.ms-logo {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 1.5rem 0;
+    color: #6b6b73;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.login-divider span {
+    padding: 0 0.75rem;
+}
+
+.login-label {
+    align-self: flex-start;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #8b8b93;
+    margin-bottom: 0.4rem;
+}
+
+.email-offline {
+    width: 100%;
+    color: #fff;
+    background: #1a1a1f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+.email-offline::placeholder {
+    color: #5c5c64;
+}
+
+.offline-btn {
+    width: 100%;
+    margin-top: 1rem;
+    background: #1a1a1f;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.offline-btn:hover {
+    background: #232328;
+}
+
+.back-btn {
+    width: 100%;
+    margin-top: 0.75rem;
+    background: none;
+    color: #8b8b93;
+    border: none;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    color: #fff;
+}
+
+.login-footer {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: #5c5c64;
+}

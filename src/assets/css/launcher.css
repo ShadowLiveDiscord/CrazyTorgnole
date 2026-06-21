@@ -1,0 +1,220 @@
+@import url(theme.css);
+@import url(font.css);
+
+@import url(panels/login.css);
+@import url(panels/home.css);
+@import url(panels/settings.css);
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none !important;
+    outline: none !important;
+    font-family: "Space Grotesk", serif;
+}
+
+body {
+    background: var(--background);
+    color: var(--color);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+section.navbar {
+    width: 100%;
+    height: 2.4em;
+    min-height: 2.4em;
+    max-height: 2.4em;
+    border-bottom: solid 0.9px hsla(0, 0%, 80%, 0.2);
+    -webkit-app-region: drag;
+}
+
+section.navbar .container {
+    position: absolute;
+    top: 0.65rem;
+    left: 0.75rem;
+    box-shadow: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 1rem;
+}
+
+section.navbar .container.end {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    left: auto;
+    box-shadow: none !important;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 1rem;
+}
+
+section.navbar .container .control {
+    grid-template-columns: repeat(3, 0.8rem);
+    align-items: center;
+    gap: 0.6rem;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+section.navbar .container.end .control {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+section.navbar .container .control button {
+    color: #353535;
+    vertical-align: middle;
+    user-select: none;
+    appearance: none;
+    display: inline-flex;
+    border-radius: 0;
+    outline: 0;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    -webkit-app-region: no-drag;
+    border: none;
+    border-radius: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+section.navbar .title {
+    color: #ccc;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0.6rem 1rem;
+}
+
+section.navbar i.logo {
+    color: #ccc;
+    position: absolute;
+    letter-spacing: 0.5px;
+    font-size: 1.2em;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+}
+
+section.navbar i.logo.end {
+    justify-content: end;
+}
+
+section.navbar button:hover:before {
+    content: attr(data-label);
+}
+
+section.navbar button.close {
+    background-color: #ff5f56;
+    box-shadow: 0 0 0 0.5px #e0443e;
+    border-radius: 50%;
+    transition: transform 0.1s ease-in;
+}
+
+section.navbar button.minimize {
+    background-color: #ffbd2e;
+    box-shadow: 0 0 0 0.5px #dea123;
+    border-radius: 50%;
+    transition: transform 0.1s ease-in;
+}
+
+section.navbar button.maximize {
+    background-color: #27c93f;
+    box-shadow: 0 0 0 0.5px #1aab29;
+    border-radius: 50%;
+    transition: transform 0.1s ease-in;
+}
+
+section.navbar button i {
+    font-weight: 800;
+    opacity: 0;
+    font-size: 0.6rem;
+}
+
+section.navbar button:hover {
+    transform: scale(1.25);
+}
+
+section.navbar button:hover > i {
+    opacity: 1;
+}
+
+section.main-ctn {
+    width: 100%;
+    height: calc(100% - 2.4em);
+}
+
+.popup {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-tab {
+    width: 40%;
+    padding: 15px;
+    background: var(--background);
+    border-radius: 15px;
+    z-index: 10;
+}
+
+.popup-title {
+    text-align: center;
+    font-size: 2rem;
+    border-bottom: solid 4px var(--color);
+    margin-bottom: 1rem;
+}
+
+.popup-options {
+    display: none;
+    align-items: end;
+    flex-direction: column;
+}
+
+.popup-button {
+    background: none;
+    color: var(--color);
+    border: solid 4px var(--element-color);
+    border-radius: 10px;
+    padding: 0.3rem 4rem;
+    font-size: inherit;
+    font-weight: bold;
+    margin: 15px 10px;
+}
+
+.panels {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.panel {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.active {
+    display: flex;
+}

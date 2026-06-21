@@ -1,0 +1,46 @@
+{
+  "name": "crazytorgnole",
+  "version": "1.0.0",
+  "description": "Launcher Minecraft avec authentification Microsoft, style NyleLauncher",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "release": "electron-builder --publish always"
+  },
+  "author": "ShadowLive",
+  "license": "ISC",
+  "dependencies": {
+    "electron-updater": "^6.8.9",
+    "minecraft-java-core": "^4.2.8",
+    "node-bdd": "^2.0.4",
+    "node-fetch": "^2.7.0",
+    "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.cctechit.crazytorgnole",
+    "productName": "CrazyTorgnole",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "ShadowLiveDiscord",
+      "repo": "CrazyTorgnole"
+    }
+  }
+}
