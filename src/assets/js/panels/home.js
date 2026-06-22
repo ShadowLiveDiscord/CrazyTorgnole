@@ -363,12 +363,20 @@ class Home {
 
         let versionOverride = configClient.minecraft_version_override;
 
+        let instanceName = versionOverride
+            ? `${options.name}_${versionOverride.minecraft_version}_${
+                  versionOverride.loader_type !== "none"
+                      ? `${versionOverride.loader_type}-${versionOverride.loader_version}`
+                      : "vanilla"
+              }`
+            : options.name;
+
         let opt = {
             url: options.url,
             authenticator: authenticator,
             timeout: 10000,
             path: path,
-            instance: options.name,
+            instance: instanceName,
             version:
                 versionOverride?.minecraft_version ||
                 options.loadder.minecraft_version,
