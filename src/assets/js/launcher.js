@@ -103,7 +103,7 @@ class Launcher {
         if (!configClient) {
             const cfgData = {
                 account_selected: null,
-                instance_select: null,
+                instance_selct: null,
                 java_config: {
                     java_path: null,
                     java_memory: {

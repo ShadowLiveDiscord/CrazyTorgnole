@@ -413,7 +413,7 @@ class Settings {
     async fetchLoaderBuilds(loaderType, mcVersion) {
         try {
             if (loaderType === "forge") {
-                let res = await fetch(
+                let res = await this.fetchWithTimeout(
                     "https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json",
                 );
                 let data = await res.json();
@@ -421,7 +421,7 @@ class Settings {
             }
 
             if (loaderType === "neoforge") {
-                let res = await fetch(
+                let res = await this.fetchWithTimeout(
                     "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge",
                 );
                 let data = await res.json();
@@ -440,7 +440,7 @@ class Settings {
             }[loaderType];
 
             if (metaHost) {
-                let res = await fetch(`${metaHost}${mcVersion}`);
+                let res = await this.fetchWithTimeout(`${metaHost}${mcVersion}`);
                 let data = await res.json();
                 return data.map((entry) => entry.loader.version);
             }
@@ -542,7 +542,7 @@ class Settings {
         await renderCurrent();
 
         try {
-            let res = await fetch(
+            let res = await this.fetchWithTimeout(
                 "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json",
             );
             let manifest = await res.json();
@@ -644,6 +644,16 @@ class Settings {
                 let modsPath = await this.getModsPath(active.name);
                 shell.openPath(modsPath);
             });
+    }
+
+    async fetchWithTimeout(url, ms = 8000) {
+        let controller = new AbortController();
+        let timeout = setTimeout(() => controller.abort(), ms);
+        try {
+            return await fetch(url, { signal: controller.signal });
+        } finally {
+            clearTimeout(timeout);
+        }
     }
 
     async getActiveInstance() {
@@ -769,7 +779,7 @@ class Settings {
 
             try {
                 let url = `https://api.modrinth.com/v2/search?query=${encodeURIComponent(searchInput.value)}&facets=${encodeURIComponent(JSON.stringify(facets))}&limit=20`;
-                let res = await fetch(url);
+                let res = await this.fetchWithTimeout(url);
                 let data = await res.json();
                 renderResults(data.hits || [], active, modsPath);
             } catch (err) {
@@ -801,14 +811,14 @@ class Settings {
     async installMod(projectId, active, modsPath) {
         let loader = this.modrinthLoaderFacet(active.loadder.loadder_type);
         let versionsUrl = `https://api.modrinth.com/v2/project/${projectId}/version?game_versions=${encodeURIComponent(JSON.stringify([active.loadder.minecraft_version]))}&loaders=${encodeURIComponent(JSON.stringify([loader]))}`;
-        let res = await fetch(versionsUrl);
+        let res = await this.fetchWithTimeout(versionsUrl);
         let versions = await res.json();
         if (!versions.length)
             throw new Error("Aucune version compatible trouvée.");
 
         let file =
             versions[0].files.find((f) => f.primary) || versions[0].files[0];
-        let fileRes = await fetch(file.url);
+        let fileRes = await this.fetchWithTimeout(file.url, 30000);
         let buffer = Buffer.from(await fileRes.arrayBuffer());
         fs.writeFileSync(`${modsPath}/${file.filename}`, buffer);
     }
