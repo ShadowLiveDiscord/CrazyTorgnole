@@ -402,6 +402,37 @@ class Home {
         }
     }
 
+    async startSession(playerId, authenticator, options) {
+        try {
+            let { data } = await supabase.functions.invoke("track-session", {
+                body: {
+                    action: "start",
+                    player_id: playerId,
+                    username: authenticator?.name,
+                    instance_name: options.name,
+                    minecraft_version: options.loadder.minecraft_version,
+                    loader_type: options.loadder.loadder_type,
+                    loader_version: options.loadder.loadder_version,
+                },
+            });
+            return data?.session_id || null;
+        } catch (err) {
+            console.error("Impossible de démarrer la session :", err);
+            return null;
+        }
+    }
+
+    async endSession(sessionId) {
+        if (!sessionId) return;
+        try {
+            await supabase.functions.invoke("track-session", {
+                body: { action: "end", session_id: sessionId },
+            });
+        } catch (err) {
+            console.error("Impossible de terminer la session :", err);
+        }
+    }
+
     async startGame() {
         let launch = new Launch();
         let configClient = await this.db.readData("configClient");
@@ -479,6 +510,11 @@ class Home {
 
         launch.Launch(opt);
 
+        let sessionId = null;
+        this.startSession(access.player_id, authenticator, options).then(
+            (id) => (sessionId = id),
+        );
+
         playInstanceBTN.classList.add("disabled");
         progressBar.style.display = "";
         ipcRenderer.send("main-window-progress-load");
@@ -545,6 +581,7 @@ class Home {
             infoStarting.innerHTML = `Prêt à jouer`;
             new logger(pkg.name, "#7289da");
             console.log("Close");
+            this.endSession(sessionId);
         });
 
         launch.on("error", (err) => {
@@ -575,6 +612,7 @@ class Home {
             launch.removeAllListeners();
             // new logger(pkg.name, "#7289da");
             console.error(err);
+            this.endSession(sessionId);
         });
     }
 
