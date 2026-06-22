@@ -24,6 +24,7 @@ class Settings {
         this.javaPath();
         this.resolution();
         this.launcher();
+        this.mcVersion();
     }
 
     navBTN() {
@@ -410,6 +411,74 @@ class Settings {
                     await this.db.updateData("configClient", configClient);
                 }
             }
+        });
+    }
+
+    async mcVersion() {
+        let select = document.querySelector(".mc-version-select");
+        let resetBtn = document.querySelector(".mc-version-reset");
+        let currentText = document.querySelector(".mc-version-current");
+        let latestRelease = null;
+
+        let renderCurrent = (configClient) => {
+            currentText.textContent = configClient?.minecraft_version_override
+                ? `Version forcée : ${configClient.minecraft_version_override} (vanilla)`
+                : "Version par défaut de l'instance (avec mods si configurés).";
+        };
+
+        let configClient = await this.db.readData("configClient");
+        renderCurrent(configClient);
+
+        try {
+            let res = await fetch(
+                "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json",
+            );
+            let manifest = await res.json();
+            latestRelease = manifest.latest.release;
+
+            let releaseGroup = document.createElement("optgroup");
+            releaseGroup.label = "Releases";
+            let snapshotGroup = document.createElement("optgroup");
+            snapshotGroup.label = "Snapshots";
+
+            for (let version of manifest.versions) {
+                let option = document.createElement("option");
+                option.value = version.id;
+                option.textContent = version.id;
+                if (version.type === "release")
+                    releaseGroup.appendChild(option);
+                else if (version.type === "snapshot")
+                    snapshotGroup.appendChild(option);
+            }
+
+            select.innerHTML = "";
+            select.appendChild(releaseGroup);
+            select.appendChild(snapshotGroup);
+            select.value =
+                configClient?.minecraft_version_override || latestRelease;
+        } catch (err) {
+            console.error(
+                "Impossible de récupérer les versions Minecraft :",
+                err,
+            );
+            select.innerHTML =
+                '<option value="">Impossible de contacter Mojang</option>';
+            select.disabled = true;
+        }
+
+        select.addEventListener("change", async () => {
+            let configClient = await this.db.readData("configClient");
+            configClient.minecraft_version_override = select.value;
+            await this.db.updateData("configClient", configClient);
+            renderCurrent(configClient);
+        });
+
+        resetBtn.addEventListener("click", async () => {
+            let configClient = await this.db.readData("configClient");
+            delete configClient.minecraft_version_override;
+            await this.db.updateData("configClient", configClient);
+            if (latestRelease) select.value = latestRelease;
+            renderCurrent(configClient);
         });
     }
 }

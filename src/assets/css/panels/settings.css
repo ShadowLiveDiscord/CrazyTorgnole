@@ -317,6 +317,22 @@
     transition: background-color 0.2s;
 }
 
+.mc-version-select {
+    background: var(--shadow, rgba(0, 0, 0, 0.3));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--color);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    width: 220px;
+    margin-right: 1rem;
+    font-family: "Space Grotesk", serif;
+}
+
+.mc-version-current {
+    text-align: center;
+    margin-top: 1rem;
+}
+
 .ram-info-block {
     font-size: 0.85rem;
     color: var(--element-color);

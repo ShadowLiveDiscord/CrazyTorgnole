@@ -361,13 +361,15 @@ class Home {
         const path = `${await appdata()}/.crazytorgnole`;
         console.log(path + " appdata: " + (await appdata()));
 
+        let versionOverride = configClient.minecraft_version_override;
+
         let opt = {
             url: options.url,
             authenticator: authenticator,
             timeout: 10000,
             path: path,
             instance: options.name,
-            version: options.loadder.minecraft_version,
+            version: versionOverride || options.loadder.minecraft_version,
             detached:
                 configClient.launcher_config.closeLauncher == "close-all"
                     ? false
@@ -375,11 +377,16 @@ class Home {
             downloadFileMultiple: configClient.launcher_config.download_multi,
             intelEnabledMac: configClient.launcher_config.intelEnabledMac,
 
-            loader: {
-                type: options.loadder.loadder_type,
-                build: options.loadder.loadder_version,
-                enable: options.loadder.loadder_type == "none" ? false : true,
-            },
+            loader: versionOverride
+                ? { type: "none", build: "", enable: false }
+                : {
+                      type: options.loadder.loadder_type,
+                      build: options.loadder.loadder_version,
+                      enable:
+                          options.loadder.loadder_type == "none"
+                              ? false
+                              : true,
+                  },
 
             verify: options.verify,
 
