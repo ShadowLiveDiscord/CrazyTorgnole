@@ -25,6 +25,7 @@ class Settings {
         this.resolution();
         this.launcher();
         this.mcVersion();
+        this.modsManager();
     }
 
     navBTN() {
@@ -637,19 +638,179 @@ class Settings {
         document
             .querySelector(".mc-version-open-mods")
             .addEventListener("click", async () => {
-                let configClient = await this.db.readData("configClient");
-                let instances = await config.getInstanceList();
-                let active =
-                    instances.find(
-                        (i) => i.name === configClient?.instance_selct,
-                    ) || instances.find((i) => !i.custom);
+                let active = await this.getActiveInstance();
                 if (!active) return;
 
-                let modsPath = `${await appdata()}/.crazytorgnole/instances/${active.name}/mods`;
-                if (!fs.existsSync(modsPath))
-                    fs.mkdirSync(modsPath, { recursive: true });
+                let modsPath = await this.getModsPath(active.name);
                 shell.openPath(modsPath);
             });
+    }
+
+    async getActiveInstance() {
+        let configClient = await this.db.readData("configClient");
+        let instances = await config.getInstanceList();
+        return (
+            instances.find((i) => i.name === configClient?.instance_selct) ||
+            instances.find((i) => !i.custom)
+        );
+    }
+
+    async getModsPath(instanceName) {
+        let modsPath = `${await appdata()}/.crazytorgnole/instances/${instanceName}/mods`;
+        if (!fs.existsSync(modsPath)) fs.mkdirSync(modsPath, { recursive: true });
+        return modsPath;
+    }
+
+    modrinthLoaderFacet(loaderType) {
+        if (loaderType === "legacyfabric") return "fabric";
+        return loaderType;
+    }
+
+    async modsManager() {
+        let infoEl = document.querySelector(".mods-instance-info");
+        let searchInput = document.querySelector(".mods-search-input");
+        let searchBtn = document.querySelector(".mods-search-btn");
+        let resultsEl = document.querySelector(".mods-search-results");
+        let installedEl = document.querySelector(".mods-installed-list");
+
+        let renderInstalled = async (active) => {
+            let modsPath = await this.getModsPath(active.name);
+            let files = fs
+                .readdirSync(modsPath)
+                .filter((f) => f.toLowerCase().endsWith(".jar"));
+
+            if (!files.length) {
+                installedEl.innerHTML =
+                    '<div class="mc-instances-empty">Aucun mod installé pour cette instance.</div>';
+                return;
+            }
+
+            installedEl.innerHTML = files
+                .map(
+                    (file) => `
+                        <div class="mc-instance-row" data-file="${file}">
+                            <div class="mc-instance-row-name">${file}</div>
+                            <div class="mc-instance-row-delete">✕</div>
+                        </div>
+                    `,
+                )
+                .join("");
+
+            installedEl.querySelectorAll(".mc-instance-row").forEach((row) => {
+                row.querySelector(".mc-instance-row-delete").addEventListener(
+                    "click",
+                    () => {
+                        fs.unlinkSync(`${modsPath}/${row.dataset.file}`);
+                        renderInstalled(active);
+                    },
+                );
+            });
+        };
+
+        let renderResults = (mods, active, modsPath) => {
+            if (!mods.length) {
+                resultsEl.innerHTML =
+                    '<div class="mc-instances-empty">Aucun mod trouvé.</div>';
+                return;
+            }
+
+            resultsEl.innerHTML = mods
+                .map(
+                    (mod) => `
+                        <div class="mc-instance-row" data-id="${mod.project_id}">
+                            <div class="mc-instance-row-name">${mod.title} — ${mod.author}</div>
+                            <div class="mods-install-btn size-btn">Installer</div>
+                        </div>
+                    `,
+                )
+                .join("");
+
+            resultsEl.querySelectorAll(".mc-instance-row").forEach((row) => {
+                let btn = row.querySelector(".mods-install-btn");
+                btn.addEventListener("click", async () => {
+                    btn.textContent = "Installation...";
+                    try {
+                        await this.installMod(
+                            row.dataset.id,
+                            active,
+                            modsPath,
+                        );
+                        btn.textContent = "Installé ✓";
+                        await renderInstalled(active);
+                    } catch (err) {
+                        console.error(err);
+                        btn.textContent = "Erreur";
+                    }
+                });
+            });
+        };
+
+        let runSearch = async () => {
+            let active = await this.getActiveInstance();
+            if (!active) return;
+
+            if (active.loadder.loadder_type === "none") {
+                resultsEl.innerHTML =
+                    '<div class="mc-instances-empty">Cette instance est en Vanilla. Configurez un mod loader (Forge/NeoForge/Fabric/Quilt) dans l\'onglet VERSION pour installer des mods.</div>';
+                return;
+            }
+
+            let modsPath = await this.getModsPath(active.name);
+            let facets = [
+                ["project_type:mod"],
+                [`versions:${active.loadder.minecraft_version}`],
+                [
+                    `categories:${this.modrinthLoaderFacet(active.loadder.loadder_type)}`,
+                ],
+            ];
+
+            resultsEl.innerHTML =
+                '<div class="mc-instances-empty">Recherche...</div>';
+
+            try {
+                let url = `https://api.modrinth.com/v2/search?query=${encodeURIComponent(searchInput.value)}&facets=${encodeURIComponent(JSON.stringify(facets))}&limit=20`;
+                let res = await fetch(url);
+                let data = await res.json();
+                renderResults(data.hits || [], active, modsPath);
+            } catch (err) {
+                console.error(err);
+                resultsEl.innerHTML =
+                    '<div class="mc-instances-empty">Impossible de contacter Modrinth.</div>';
+            }
+        };
+
+        searchBtn.addEventListener("click", runSearch);
+        searchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") runSearch();
+        });
+
+        let active = await this.getActiveInstance();
+        if (active) {
+            infoEl.textContent = `Instance active : ${active.name} (${active.loadder.minecraft_version}${active.loadder.loadder_type !== "none" ? ` + ${active.loadder.loadder_type}` : " vanilla"})`;
+            await renderInstalled(active);
+        }
+
+        window.addEventListener("home:refresh", async () => {
+            let active = await this.getActiveInstance();
+            if (!active) return;
+            infoEl.textContent = `Instance active : ${active.name} (${active.loadder.minecraft_version}${active.loadder.loadder_type !== "none" ? ` + ${active.loadder.loadder_type}` : " vanilla"})`;
+            await renderInstalled(active);
+        });
+    }
+
+    async installMod(projectId, active, modsPath) {
+        let loader = this.modrinthLoaderFacet(active.loadder.loadder_type);
+        let versionsUrl = `https://api.modrinth.com/v2/project/${projectId}/version?game_versions=${encodeURIComponent(JSON.stringify([active.loadder.minecraft_version]))}&loaders=${encodeURIComponent(JSON.stringify([loader]))}`;
+        let res = await fetch(versionsUrl);
+        let versions = await res.json();
+        if (!versions.length)
+            throw new Error("Aucune version compatible trouvée.");
+
+        let file =
+            versions[0].files.find((f) => f.primary) || versions[0].files[0];
+        let fileRes = await fetch(file.url);
+        let buffer = Buffer.from(await fileRes.arrayBuffer());
+        fs.writeFileSync(`${modsPath}/${file.filename}`, buffer);
     }
 }
 

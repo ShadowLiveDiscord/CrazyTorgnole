@@ -397,6 +397,40 @@
     color: var(--element-color);
 }
 
+.mods-search-row {
+    gap: 0.6rem;
+}
+
+.mods-search-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    color: var(--color);
+    font-size: 0.85rem;
+}
+
+.mods-search-input:focus {
+    outline: none;
+    border-color: rgba(255, 122, 26, 0.5);
+}
+
+.mods-instance-info {
+    text-align: center;
+    color: #ff9645;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.mods-search-results,
+.mods-installed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
 .ram-info-block {
     font-size: 0.85rem;
     color: var(--element-color);
