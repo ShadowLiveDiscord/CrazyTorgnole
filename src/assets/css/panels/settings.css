@@ -482,6 +482,44 @@
     background: rgba(255, 255, 255, 0.14);
 }
 
+.resolution-presets {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.resolution-preset-btn {
+    padding: 0.4rem 0.9rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--element-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.resolution-preset-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color);
+}
+
+.fullscreen-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color);
+    cursor: pointer;
+}
+
+.fullscreen-toggle input {
+    width: 16px;
+    height: 16px;
+    accent-color: #ff7a1a;
+    cursor: pointer;
+}
+
 .input-max-files {
     background: var(--shadow, rgba(0, 0, 0, 0.3));
     border: 1px solid rgba(255, 255, 255, 0.08);

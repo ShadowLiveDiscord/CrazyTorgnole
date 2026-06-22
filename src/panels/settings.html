@@ -85,13 +85,28 @@
                 Par défaut le jeu démarre en 854 X 480,<br>vous pouvez modifier cette valeur pour un confort de jeu
                 optimal. La résolution idéale est de 1280 X 720.
             </div>
+            <div class="settings-elements content-center resolution-presets">
+                <div class="resolution-preset-btn" data-w="854" data-h="480">854×480</div>
+                <div class="resolution-preset-btn" data-w="1280" data-h="720">1280×720</div>
+                <div class="resolution-preset-btn" data-w="1366" data-h="768">1366×768</div>
+                <div class="resolution-preset-btn" data-w="1600" data-h="900">1600×900</div>
+                <div class="resolution-preset-btn" data-w="1920" data-h="1080">1920×1080</div>
+                <div class="resolution-preset-btn" data-w="2560" data-h="1440">2560×1440</div>
+            </div>
             <div class="settings-elements content-center">
                 <div class="input-size-element">
                     <input type="number" class="width-size input-resolution">
                     <div class="size-cross"></div>
                     <input type="number" class="height-size input-resolution">
                 </div>
+                <div class="resolution-detect size-btn">Détecter mon écran</div>
                 <div class="size-reset size-btn">Par defaut</div>
+            </div>
+            <div class="settings-elements content-center">
+                <label class="fullscreen-toggle">
+                    <input type="checkbox" class="fullscreen-checkbox">
+                    Lancer le jeu en plein écran
+                </label>
             </div>
         </div>
     </div>
@@ -123,6 +138,7 @@
             <div class="settings-elements content-center">
                 <div class="mc-version-apply size-btn">Appliquer</div>
                 <div class="mc-version-reset size-btn">Par defaut</div>
+                <div class="mc-version-open-mods size-btn">Ouvrir le dossier mods</div>
             </div>
             <div class="setting-text mc-version-current"></div>
         </div>

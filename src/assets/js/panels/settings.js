@@ -9,8 +9,9 @@ import {
     setStatus,
     Slider,
 } from "../utils.js";
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, shell } = require("electron");
 const os = require("os");
+const fs = require("fs");
 
 class Settings {
     static id = "settings";
@@ -281,31 +282,68 @@ class Settings {
         let width = document.querySelector(".width-size");
         let height = document.querySelector(".height-size");
         let resolutionReset = document.querySelector(".size-reset");
+        let resolutionDetect = document.querySelector(".resolution-detect");
+        let fullscreenCheckbox = document.querySelector(
+            ".fullscreen-checkbox",
+        );
+        let presetButtons = document.querySelectorAll(
+            ".resolution-preset-btn",
+        );
 
         width.value = resolution.width;
         height.value = resolution.height;
+        fullscreenCheckbox.checked = !!resolution.fullscreen;
 
-        width.addEventListener("change", async () => {
+        let saveResolution = async (w, h, fullscreen) => {
             let configClient = await this.db.readData("configClient");
-            configClient.game_config.screen_size.width = width.value;
+            configClient.game_config.screen_size = {
+                width: w,
+                height: h,
+                fullscreen: fullscreen,
+            };
             await this.db.updateData("configClient", configClient);
+        };
+
+        width.addEventListener("change", () =>
+            saveResolution(width.value, height.value, fullscreenCheckbox.checked),
+        );
+
+        height.addEventListener("change", () =>
+            saveResolution(width.value, height.value, fullscreenCheckbox.checked),
+        );
+
+        fullscreenCheckbox.addEventListener("change", () =>
+            saveResolution(width.value, height.value, fullscreenCheckbox.checked),
+        );
+
+        presetButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                width.value = btn.dataset.w;
+                height.value = btn.dataset.h;
+                saveResolution(
+                    btn.dataset.w,
+                    btn.dataset.h,
+                    fullscreenCheckbox.checked,
+                );
+            });
         });
 
-        height.addEventListener("change", async () => {
-            let configClient = await this.db.readData("configClient");
-            configClient.game_config.screen_size.height = height.value;
-            await this.db.updateData("configClient", configClient);
+        resolutionDetect.addEventListener("click", async () => {
+            let size = await ipcRenderer.invoke("get-screen-size");
+            width.value = size.width;
+            height.value = size.height;
+            await saveResolution(
+                size.width,
+                size.height,
+                fullscreenCheckbox.checked,
+            );
         });
 
         resolutionReset.addEventListener("click", async () => {
-            let configClient = await this.db.readData("configClient");
-            configClient.game_config.screen_size = {
-                width: "854",
-                height: "480",
-            };
             width.value = "854";
             height.value = "480";
-            await this.db.updateData("configClient", configClient);
+            fullscreenCheckbox.checked = false;
+            await saveResolution("854", "480", false);
         });
     }
 
@@ -639,6 +677,23 @@ class Settings {
             window.dispatchEvent(new CustomEvent("home:refresh"));
             await renderCurrent();
         });
+
+        document
+            .querySelector(".mc-version-open-mods")
+            .addEventListener("click", async () => {
+                let configClient = await this.db.readData("configClient");
+                let instances = await config.getInstanceList();
+                let active =
+                    instances.find(
+                        (i) => i.name === configClient?.instance_selct,
+                    ) || instances.find((i) => !i.custom);
+                if (!active) return;
+
+                let modsPath = `${await appdata()}/.crazytorgnole/instances/${active.name}/mods`;
+                if (!fs.existsSync(modsPath))
+                    fs.mkdirSync(modsPath, { recursive: true });
+                shell.openPath(modsPath);
+            });
     }
 }
 

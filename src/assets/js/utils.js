@@ -1,6 +1,7 @@
 const { ipcRenderer } = require("electron");
 const fs = require("fs");
 const pkg = require("../package.json");
+const { Status } = require("minecraft-java-core");
 
 import config from "./utils/config.js";
 import database from "./utils/database.js";
@@ -94,9 +95,37 @@ async function headplayer(skinBase64) {
         `url(${skin})`;
 }
 
+let statusInterval = null;
+
 async function setStatus(opt) {
-    // L'UI de statut serveur a été retirée du panneau d'accueil ; conservé
-    // comme no-op pour ne pas casser les appelants (login.js, home.js).
+    let badge = document.querySelector(".server-status-badge");
+    if (!badge) return;
+
+    if (statusInterval) {
+        clearInterval(statusInterval);
+        statusInterval = null;
+    }
+
+    if (!opt?.ip) {
+        badge.style.display = "none";
+        return;
+    }
+
+    let refresh = async () => {
+        try {
+            let status = await new Status(opt.ip, opt.port || 25565).getStatus();
+            badge.style.display = "flex";
+            badge.innerHTML = status.error
+                ? `<span class="status-dot"></span> Serveur hors ligne`
+                : `<span class="status-dot online"></span> ${status.playersConnect}/${status.playersMax} joueurs • ${status.ms}ms`;
+        } catch (err) {
+            badge.style.display = "flex";
+            badge.innerHTML = `<span class="status-dot"></span> Serveur hors ligne`;
+        }
+    };
+
+    await refresh();
+    statusInterval = setInterval(refresh, 30000);
 }
 
 export {

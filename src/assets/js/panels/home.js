@@ -468,6 +468,7 @@ class Home {
             screen: {
                 width: configClient.game_config.screen_size.width,
                 height: configClient.game_config.screen_size.height,
+                fullscreen: configClient.game_config.screen_size.fullscreen || false,
             },
 
             memory: {

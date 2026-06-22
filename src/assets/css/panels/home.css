@@ -390,6 +390,27 @@
     color: #ff9645;
 }
 
+.server-status-badge {
+    display: none;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--element-color);
+}
+
+.server-status-badge .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff2c2c;
+    flex: none;
+}
+
+.server-status-badge .status-dot.online {
+    background: #4bd17a;
+    box-shadow: 0 0 6px rgba(75, 209, 122, 0.6);
+}
+
 .info-starting-game-text {
     font-size: 0.95rem;
     font-weight: 600;

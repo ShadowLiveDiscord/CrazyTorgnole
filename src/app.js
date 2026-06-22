@@ -1,4 +1,4 @@
-const { app, ipcMain, nativeTheme } = require("electron");
+const { app, ipcMain, nativeTheme, screen } = require("electron");
 const { Microsoft } = require("minecraft-java-core");
 const { autoUpdater } = require("electron-updater");
 
@@ -78,6 +78,9 @@ ipcMain.on("update-window-progress-load", () =>
 ipcMain.handle("path-user-data", (_e) => app.getPath("userData"));
 ipcMain.handle("appData", (_e) => app.getPath("appData"));
 ipcMain.handle("is-dev", (_e) => dev);
+ipcMain.handle("get-screen-size", (_e) =>
+    screen.getPrimaryDisplay().workAreaSize,
+);
 
 ipcMain.on("main-window-maximize", () => {
     if (MainWindow.getWindow().isMaximized()) {
