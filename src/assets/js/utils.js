@@ -9,6 +9,7 @@ import logger from "./utils/logger.js";
 import popup from "./utils/popup.js";
 import { skin2D } from "./utils/skin.js";
 import slider from "./utils/slider.js";
+import supabase from "./utils/supabase.js";
 
 async function setBackground() {
     let body = document.body;
@@ -75,6 +76,37 @@ async function accountSelect(data) {
         statusEl.textContent = online ? "ONLINE" : "OFFLINE";
         statusEl.classList.toggle("online", online);
     }
+    renderPlaytime(data);
+}
+
+async function renderPlaytime(data) {
+    let playtimeEl = document.querySelector(".account-widget-playtime");
+    if (!playtimeEl) return;
+    playtimeEl.textContent = "";
+
+    try {
+        let { data: result } = await supabase.functions.invoke(
+            "get-playtime",
+            {
+                body: {
+                    minecraft_uuid: data?.uuid,
+                    username: data?.name,
+                },
+            },
+        );
+        let totalSeconds = result?.total_seconds || 0;
+        if (!totalSeconds) return;
+
+        let hours = Math.floor(totalSeconds / 3600);
+        let minutes = Math.floor((totalSeconds % 3600) / 60);
+        let text =
+            hours > 0
+                ? `${hours}h${minutes.toString().padStart(2, "0")} jouées cette semaine`
+                : `${minutes} min jouées cette semaine`;
+        playtimeEl.textContent = text;
+    } catch (err) {
+        console.error("Impossible de récupérer le temps de jeu :", err);
+    }
 }
 
 async function headplayer(skinBase64) {
@@ -126,6 +158,7 @@ export {
     logger as logger,
     pkg as pkg,
     popup as popup,
+    renderPlaytime as renderPlaytime,
     setBackground as setBackground,
     setStatus as setStatus,
     skin2D as skin2D,

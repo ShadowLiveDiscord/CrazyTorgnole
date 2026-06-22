@@ -248,6 +248,11 @@
     color: #4bd17a;
 }
 
+.account-widget-playtime {
+    font-size: 0.65rem;
+    color: var(--element-color);
+}
+
 .account-widget-chevron {
     font-size: 0.75rem;
     color: var(--element-color);

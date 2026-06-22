@@ -7,6 +7,7 @@ import {
     logger,
     pkg,
     popup,
+    renderPlaytime,
     setStatus,
     skin2D,
 } from "../utils.js";
@@ -595,7 +596,9 @@ class Home {
             infoStarting.innerHTML = `Prêt à jouer`;
             new logger(pkg.name, "#7289da");
             console.log("Close");
-            this.endSession(sessionId);
+            this.endSession(sessionId).then(() =>
+                renderPlaytime(authenticator),
+            );
         });
 
         launch.on("error", (err) => {
@@ -626,7 +629,9 @@ class Home {
             launch.removeAllListeners();
             // new logger(pkg.name, "#7289da");
             console.error(err);
-            this.endSession(sessionId);
+            this.endSession(sessionId).then(() =>
+                renderPlaytime(authenticator),
+            );
         });
     }
 
