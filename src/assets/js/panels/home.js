@@ -383,8 +383,7 @@ class Home {
 
             verify: options.verify,
 
-            // ignored: [...options.ignored],
-            ignored: [],
+            ignored: options.ignored || [],
 
             java: {
                 path: configClient.java_config.java_path,

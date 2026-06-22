@@ -1,6 +1,6 @@
 {
   "name": "crazytorgnole",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Launcher Minecraft avec authentification Microsoft, style NyleLauncher",
   "main": "src/app.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "ShadowLive",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "electron-updater": "^6.8.9",
     "minecraft-java-core": "^4.2.8",
     "node-bdd": "^2.0.4",

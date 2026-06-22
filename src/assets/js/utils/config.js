@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+import supabase from "./supabase.js";
 
 const dataDir = path.join(__dirname, "assets", "data");
 
@@ -38,6 +39,13 @@ class Config {
     }
 
     async getNews() {
+        let { data, error } = await supabase
+            .from("news")
+            .select("title, content, author, publish_date:published_at")
+            .order("published_at", { ascending: false });
+
+        if (!error && data) return data;
+
         let config = (await this.GetConfig()) || {};
 
         if (config.rss) {
