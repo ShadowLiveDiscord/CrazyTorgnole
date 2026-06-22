@@ -1,8 +1,6 @@
 .global {
     --element-color: #9292925c;
     --transition: all 0.15s ease-out;
-    --dark-color: #29292960;
-    --light-color: #f0f0f060;
 }
 
 .dark {
@@ -10,11 +8,4 @@
     --background: #29292960;
     --background-element: #42424260;
     --background-transparent: #2c2c2c60;
-}
-
-.light {
-    --color: #151515;
-    --background: #f0f0f060;
-    --background-element: #c2c2c260;
-    --background-transparent: #cecece60;
 }

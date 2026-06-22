@@ -5,7 +5,6 @@ import {
     config,
     database,
     popup,
-    setBackground,
     setStatus,
     Slider,
 } from "../utils.js";
@@ -368,49 +367,6 @@ class Settings {
             maxDownloadFilesInput.value = 5;
             configClient.launcher_config.download_multi = 5;
             await this.db.updateData("configClient", configClient);
-        });
-
-        let themeBox = document.querySelector(".theme-box");
-        let theme = configClient?.launcher_config?.theme || "auto";
-
-        if (theme == "auto") {
-            document
-                .querySelector(".theme-btn-auto")
-                .classList.add("active-theme");
-        } else if (theme == "dark") {
-            document
-                .querySelector(".theme-btn-sombre")
-                .classList.add("active-theme");
-        } else if (theme == "light") {
-            document
-                .querySelector(".theme-btn-clair")
-                .classList.add("active-theme");
-        }
-
-        themeBox.addEventListener("click", async (e) => {
-            if (e.target.classList.contains("theme-btn")) {
-                let activeTheme = document.querySelector(".active-theme");
-                if (e.target.classList.contains("active-theme")) return;
-                activeTheme?.classList.remove("active-theme");
-
-                if (e.target.classList.contains("theme-btn-auto")) {
-                    setBackground();
-                    theme = "auto";
-                    e.target.classList.add("active-theme");
-                } else if (e.target.classList.contains("theme-btn-sombre")) {
-                    setBackground(true);
-                    theme = "dark";
-                    e.target.classList.add("active-theme");
-                } else if (e.target.classList.contains("theme-btn-clair")) {
-                    setBackground(false);
-                    theme = "light";
-                    e.target.classList.add("active-theme");
-                }
-
-                let configClient = await this.db.readData("configClient");
-                configClient.launcher_config.theme = theme;
-                await this.db.updateData("configClient", configClient);
-            }
         });
 
         let closeBox = document.querySelector(".close-box");

@@ -10,26 +10,14 @@ import popup from "./utils/popup.js";
 import { skin2D } from "./utils/skin.js";
 import slider from "./utils/slider.js";
 
-async function setBackground(theme) {
-    if (typeof theme === "undefined") {
-        let databaseLauncher = new database();
-        let configClient = await databaseLauncher.readData("configClient");
-        theme = configClient?.launcher_config?.theme || "auto";
-        theme = await ipcRenderer
-            .invoke("is-dark-theme", theme)
-            .then((res) => res);
-    }
-    let background;
+async function setBackground() {
     let body = document.body;
-    body.className = theme ? "dark global" : "light global";
+    body.className = "dark global";
+    let background;
     if (fs.existsSync(`${__dirname}/assets/images`)) {
         background = `linear-gradient(#00000080, #00000080), url(./assets/images/background.png)`;
     }
-    body.style.backgroundImage = background
-        ? background
-        : theme
-          ? "#000"
-          : "#fff";
+    body.style.backgroundImage = background ? background : "#000";
     body.style.backgroundSize = "cover";
 }
 
