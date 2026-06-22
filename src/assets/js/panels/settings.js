@@ -414,16 +414,93 @@ class Settings {
         });
     }
 
+    async fetchLoaderBuilds(loaderType, mcVersion) {
+        try {
+            if (loaderType === "forge") {
+                let res = await fetch(
+                    "https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json",
+                );
+                let data = await res.json();
+                return (data[mcVersion] || []).slice().reverse();
+            }
+
+            if (loaderType === "neoforge") {
+                let res = await fetch(
+                    "https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge",
+                );
+                let data = await res.json();
+                let prefix = mcVersion.replace(/^1\./, "");
+                if (!prefix.includes(".")) prefix += ".0";
+                return data.versions
+                    .filter((v) => v.startsWith(`${prefix}.`))
+                    .reverse();
+            }
+
+            let metaHost = {
+                fabric: "https://meta.fabricmc.net/v2/versions/loader/",
+                legacyfabric:
+                    "https://meta.legacyfabric.net/v2/versions/loader/",
+                quilt: "https://meta.quiltmc.org/v3/versions/loader/",
+            }[loaderType];
+
+            if (metaHost) {
+                let res = await fetch(`${metaHost}${mcVersion}`);
+                let data = await res.json();
+                return data.map((entry) => entry.loader.version);
+            }
+        } catch (err) {
+            console.error(
+                `Impossible de récupérer les builds ${loaderType} pour ${mcVersion} :`,
+                err,
+            );
+        }
+        return [];
+    }
+
     async mcVersion() {
-        let select = document.querySelector(".mc-version-select");
+        let versionSelect = document.querySelector(".mc-version-select");
+        let loaderTypeSelect = document.querySelector(
+            ".mc-loader-type-select",
+        );
+        let buildSelect = document.querySelector(".mc-loader-build-select");
+        let applyBtn = document.querySelector(".mc-version-apply");
         let resetBtn = document.querySelector(".mc-version-reset");
         let currentText = document.querySelector(".mc-version-current");
         let latestRelease = null;
 
         let renderCurrent = (configClient) => {
-            currentText.textContent = configClient?.minecraft_version_override
-                ? `Version forcée : ${configClient.minecraft_version_override} (vanilla)`
+            let override = configClient?.minecraft_version_override;
+            currentText.textContent = override
+                ? `Version forcée : ${override.minecraft_version}${
+                      override.loader_type !== "none"
+                          ? ` + ${override.loader_type} ${override.loader_version}`
+                          : " (vanilla)"
+                  }`
                 : "Version par défaut de l'instance (avec mods si configurés).";
+        };
+
+        let refreshBuilds = async () => {
+            let loaderType = loaderTypeSelect.value;
+            if (loaderType === "none") {
+                buildSelect.innerHTML = '<option value="">— Vanilla —</option>';
+                buildSelect.disabled = true;
+                return;
+            }
+            buildSelect.disabled = true;
+            buildSelect.innerHTML = '<option value="">Chargement...</option>';
+            let builds = await this.fetchLoaderBuilds(
+                loaderType,
+                versionSelect.value,
+            );
+            if (!builds.length) {
+                buildSelect.innerHTML =
+                    '<option value="">Aucun build trouvé pour cette version</option>';
+                return;
+            }
+            buildSelect.innerHTML = builds
+                .map((b) => `<option value="${b}">${b}</option>`)
+                .join("");
+            buildSelect.disabled = false;
         };
 
         let configClient = await this.db.readData("configClient");
@@ -451,24 +528,42 @@ class Settings {
                     snapshotGroup.appendChild(option);
             }
 
-            select.innerHTML = "";
-            select.appendChild(releaseGroup);
-            select.appendChild(snapshotGroup);
-            select.value =
-                configClient?.minecraft_version_override || latestRelease;
+            versionSelect.innerHTML = "";
+            versionSelect.appendChild(releaseGroup);
+            versionSelect.appendChild(snapshotGroup);
+
+            let override = configClient?.minecraft_version_override;
+            versionSelect.value =
+                override?.minecraft_version || latestRelease;
+            loaderTypeSelect.value = override?.loader_type || "none";
+            await refreshBuilds();
+            if (override?.loader_version)
+                buildSelect.value = override.loader_version;
         } catch (err) {
             console.error(
                 "Impossible de récupérer les versions Minecraft :",
                 err,
             );
-            select.innerHTML =
+            versionSelect.innerHTML =
                 '<option value="">Impossible de contacter Mojang</option>';
-            select.disabled = true;
+            versionSelect.disabled = true;
         }
 
-        select.addEventListener("change", async () => {
+        versionSelect.addEventListener("change", refreshBuilds);
+        loaderTypeSelect.addEventListener("change", refreshBuilds);
+
+        applyBtn.addEventListener("click", async () => {
+            let loaderType = loaderTypeSelect.value;
+            if (loaderType !== "none" && !buildSelect.value) {
+                alert("Choisissez un build de loader.");
+                return;
+            }
             let configClient = await this.db.readData("configClient");
-            configClient.minecraft_version_override = select.value;
+            configClient.minecraft_version_override = {
+                minecraft_version: versionSelect.value,
+                loader_type: loaderType,
+                loader_version: loaderType !== "none" ? buildSelect.value : "",
+            };
             await this.db.updateData("configClient", configClient);
             renderCurrent(configClient);
         });
@@ -477,7 +572,9 @@ class Settings {
             let configClient = await this.db.readData("configClient");
             delete configClient.minecraft_version_override;
             await this.db.updateData("configClient", configClient);
-            if (latestRelease) select.value = latestRelease;
+            if (latestRelease) versionSelect.value = latestRelease;
+            loaderTypeSelect.value = "none";
+            await refreshBuilds();
             renderCurrent(configClient);
         });
     }

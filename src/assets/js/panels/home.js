@@ -369,7 +369,9 @@ class Home {
             timeout: 10000,
             path: path,
             instance: options.name,
-            version: versionOverride || options.loadder.minecraft_version,
+            version:
+                versionOverride?.minecraft_version ||
+                options.loadder.minecraft_version,
             detached:
                 configClient.launcher_config.closeLauncher == "close-all"
                     ? false
@@ -378,7 +380,11 @@ class Home {
             intelEnabledMac: configClient.launcher_config.intelEnabledMac,
 
             loader: versionOverride
-                ? { type: "none", build: "", enable: false }
+                ? {
+                      type: versionOverride.loader_type,
+                      build: versionOverride.loader_version,
+                      enable: versionOverride.loader_type !== "none",
+                  }
                 : {
                       type: options.loadder.loadder_type,
                       build: options.loadder.loadder_version,

@@ -100,13 +100,28 @@
         <div class="titre-tab">Version de Minecraft</div>
         <div class="settings-elements-box">
             <div class="setting-text">
-                Choisissez n'importe quelle version officielle de Minecraft (release ou snapshot), récupérée
-                directement depuis les serveurs de Mojang.<br><br>
-                Sélectionner une version ici force le jeu en <b>vanilla</b> (sans mod loader) pour cette version. Pour
-                rejouer avec la configuration par défaut de l'instance (avec mods), cliquez sur "Par defaut".
+                Choisissez n'importe quelle version officielle de Minecraft (release ou snapshot, depuis Mojang), puis
+                un mod loader (Forge, NeoForge, Fabric, LegacyFabric ou Quilt) et le build exact de ce loader pour
+                cette version (ex : NeoForge 21.1.229 pour la 1.21.1).<br><br>
+                Cliquez sur "Appliquer" pour activer cette combinaison au prochain lancement, ou "Par defaut" pour
+                revenir à la configuration normale de l'instance.
+            </div>
+            <div class="settings-elements content-center mc-version-row">
+                <select class="mc-version-select"></select>
+                <select class="mc-loader-type-select">
+                    <option value="none">Vanilla (sans loader)</option>
+                    <option value="forge">Forge</option>
+                    <option value="neoforge">NeoForge</option>
+                    <option value="fabric">Fabric</option>
+                    <option value="legacyfabric">LegacyFabric</option>
+                    <option value="quilt">Quilt</option>
+                </select>
+                <select class="mc-loader-build-select" disabled>
+                    <option value="">— Vanilla —</option>
+                </select>
             </div>
             <div class="settings-elements content-center">
-                <select class="mc-version-select"></select>
+                <div class="mc-version-apply size-btn">Appliquer</div>
                 <div class="mc-version-reset size-btn">Par defaut</div>
             </div>
             <div class="setting-text mc-version-current"></div>
