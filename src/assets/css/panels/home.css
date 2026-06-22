@@ -475,14 +475,8 @@
     box-shadow: 0 0 0 4px rgba(255, 122, 26, 0.12);
 }
 
-.instance-select:before {
-    content: "⋮";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -55%);
+.instance-select i {
     pointer-events: none;
-    line-height: 1;
 }
 
 .progress-bar {
