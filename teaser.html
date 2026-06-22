@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrazyTorgnole — Le launcher arrive bientôt</title>
+<style>
+  :root {
+    --orange: #f0883e;
+    --purple: #2d1b4e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+    color: #f5f0ff;
+    overflow: hidden;
+  }
+  body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(180deg, #1a1030 0%, #2d1b4e 55%, #4a2a1a 100%);
+  }
+  .bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+    z-index: 0;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(0,0,0,0) 0%, rgba(10,5,20,0.55) 75%);
+    z-index: 1;
+  }
+  .content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 24px;
+  }
+  .icon {
+    width: 220px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 0 50px rgba(240,136,62,0.55), 0 10px 30px rgba(0,0,0,0.5);
+    margin-bottom: 12px;
+    animation: float 3.5s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  h1 {
+    font-size: clamp(2.2rem, 6vw, 4.2rem);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 800;
+    text-shadow: 0 0 25px rgba(240,136,62,0.6), 0 4px 12px rgba(0,0,0,0.6);
+    background: linear-gradient(90deg, #ffd9a0, #f0883e);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .subtitle {
+    margin-top: 14px;
+    font-size: clamp(1rem, 2.2vw, 1.3rem);
+    color: #e6d9ff;
+    max-width: 560px;
+    line-height: 1.5;
+    opacity: 0.9;
+  }
+  .badge {
+    margin-top: 36px;
+    padding: 10px 26px;
+    border: 1px solid rgba(240,136,62,0.6);
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--orange);
+    background: rgba(240,136,62,0.08);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(240,136,62,0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(240,136,62,0); }
+  }
+  .countdown {
+    margin-top: 30px;
+    display: flex;
+    gap: 18px;
+  }
+  .countdown div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .countdown span.num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    background: rgba(20,10,35,0.55);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 10px 16px;
+    min-width: 56px;
+  }
+  .countdown span.label {
+    margin-top: 6px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #cbb9f0;
+  }
+  footer {
+    position: absolute;
+    bottom: 22px;
+    z-index: 2;
+    font-size: 0.85rem;
+    color: rgba(245,240,255,0.55);
+    letter-spacing: 0.5px;
+  }
+  footer a {
+    color: var(--orange);
+    text-decoration: none;
+  }
+  .brand {
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand img {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    box-shadow: 0 0 14px rgba(240,136,62,0.45);
+  }
+  .brand span {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #f5f0ff;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <img class="bg" src="assets/background.png" alt="">
+  <div class="overlay"></div>
+
+  <div class="brand">
+    <img src="assets/logo.png" alt="CrazyTorgnole">
+  </div>
+
+  <div class="content">
+    <img class="icon" src="assets/logo.png" alt="CrazyTorgnole">
+    <p class="subtitle">Le launcher Minecraft nouvelle génération arrive. Connexion Microsoft, gestion d'instances, mises à jour automatiques, tout est prêt.</p>
+    <span class="badge">Bientôt disponible</span>
+
+    <div class="countdown">
+      <div><span class="num" id="d">--</span><span class="label">Jours</span></div>
+      <div><span class="num" id="h">--</span><span class="label">Heures</span></div>
+      <div><span class="num" id="m">--</span><span class="label">Min</span></div>
+      <div><span class="num" id="s">--</span><span class="label">Sec</span></div>
+    </div>
+  </div>
+
+  <footer>Rejoins-nous sur <a href="#">Discord</a> pour suivre la sortie</footer>
+
+  <script>
+    // Date de sortie cible : à ajuster selon le planning réel
+    const target = new Date();
+    target.setDate(target.getDate() + 14);
+
+    function tick() {
+      const diff = Math.max(0, target - new Date());
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('d').textContent = String(d).padStart(2, '0');
+      document.getElementById('h').textContent = String(h).padStart(2, '0');
+      document.getElementById('m').textContent = String(m).padStart(2, '0');
+      document.getElementById('s').textContent = String(s).padStart(2, '0');
+    }
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
