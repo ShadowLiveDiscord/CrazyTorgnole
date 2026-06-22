@@ -17,6 +17,18 @@ const { shell, ipcRenderer } = require("electron");
 
 const MAX_ACCOUNTS = 3;
 
+// Toujours protégés de la suppression au "verify", quelle que soit la config
+// de l'instance : sans ça, minecraft-java-core efface tout fichier du dossier
+// d'instance absent du manifeste officiel, y compris les sauvegardes du joueur.
+const ALWAYS_IGNORED = [
+    "saves",
+    "screenshots",
+    "logs",
+    "crash-reports",
+    "options.txt",
+    "servers.dat",
+];
+
 class Home {
     static id = "home";
 
@@ -487,7 +499,9 @@ class Home {
 
             verify: options.verify,
 
-            ignored: options.ignored || [],
+            ignored: Array.from(
+                new Set([...(options.ignored || []), ...ALWAYS_IGNORED]),
+            ),
 
             java: {
                 path: configClient.java_config.java_path,
