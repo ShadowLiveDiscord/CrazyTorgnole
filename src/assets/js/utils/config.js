@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 import supabase from "./supabase.js";
+import database from "./database.js";
 
 const dataDir = path.join(__dirname, "assets", "data");
 
@@ -32,10 +33,44 @@ class Config {
         for (let [name, data] of instances) {
             let instance = data;
             instance.name = name;
+            instance.custom = false;
             instancesList.push(instance);
         }
+
+        let db = new database();
+        let configClient = await db.readData("configClient");
+        for (let instance of configClient?.custom_instances || []) {
+            instance.custom = true;
+            instancesList.push(instance);
+        }
+
         console.log(instancesList);
         return instancesList;
+    }
+
+    async addCustomInstance(instance) {
+        let db = new database();
+        let configClient = await db.readData("configClient");
+        let customInstances = (configClient.custom_instances || []).filter(
+            (i) => i.name !== instance.name,
+        );
+        customInstances.push(instance);
+        configClient.custom_instances = customInstances;
+        configClient.instance_selct = instance.name;
+        await db.updateData("configClient", configClient);
+    }
+
+    async removeCustomInstance(name) {
+        let db = new database();
+        let configClient = await db.readData("configClient");
+        configClient.custom_instances = (
+            configClient.custom_instances || []
+        ).filter((i) => i.name !== name);
+        if (configClient.instance_selct === name) {
+            let base = readLocalJson("files.json");
+            configClient.instance_selct = Object.keys(base)[0];
+        }
+        await db.updateData("configClient", configClient);
     }
 
     async getNews() {

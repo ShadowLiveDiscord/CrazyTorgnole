@@ -6,9 +6,11 @@ import {
     database,
     logger,
     pkg,
+    popup,
     setStatus,
     skin2D,
 } from "../utils.js";
+import supabase from "../utils/supabase.js";
 
 const { Launch } = require("minecraft-java-core");
 const { shell, ipcRenderer } = require("electron");
@@ -28,9 +30,42 @@ class Home {
         this.instancesSelect();
         this.accountWidget();
         this.newsDropdown();
+        this.renderActiveVersion();
+        window.addEventListener("home:refresh", () =>
+            this.renderActiveVersion(),
+        );
         document
             .querySelector(".settings-btn")
             .addEventListener("click", (e) => changePanel("settings"));
+    }
+
+    async renderActiveVersion() {
+        let label = document.querySelector(".active-version-label");
+        if (!label) return;
+        let configClient = await this.db.readData("configClient");
+        let instances = await config.getInstanceList();
+        let active =
+            instances.find((i) => i.name == configClient?.instance_selct) ||
+            instances.find((i) => !i.custom);
+
+        let instanceSelectBTN = document.querySelector(".instance-select");
+        let playInstanceBTN = document.querySelector(".play-instance");
+        if (instanceSelectBTN && playInstanceBTN) {
+            if (instances.length > 1) {
+                instanceSelectBTN.style.display = "";
+                playInstanceBTN.style.paddingRight = "";
+            } else {
+                instanceSelectBTN.style.display = "none";
+                playInstanceBTN.style.paddingRight = "0";
+            }
+        }
+
+        if (!active) return;
+        label.textContent = `${active.loadder.minecraft_version}${
+            active.loadder.loadder_type !== "none"
+                ? ` • ${active.loadder.loadder_type} ${active.loadder.loadder_version}`
+                : " • Vanilla"
+        }`;
     }
 
     newsDropdown() {
@@ -296,6 +331,7 @@ class Home {
                     (i) => i.name == configClient.instance_selct,
                 );
                 await setStatus(options.status);
+                this.renderActiveVersion();
             }
         });
 
@@ -308,6 +344,7 @@ class Home {
             );
 
             if (e.target.classList.contains("instance-select")) {
+                instancesList = await config.getInstanceList();
                 instancesListPopup.innerHTML = "";
                 for (let instance of instancesList) {
                     if (instance.whitelistActive) {
@@ -342,6 +379,29 @@ class Home {
         );
     }
 
+    async checkPlayerAllowed(authenticator) {
+        try {
+            let { data, error } = await supabase.functions.invoke(
+                "check-player",
+                {
+                    body: {
+                        minecraft_uuid: authenticator?.uuid,
+                        username: authenticator?.name,
+                        auth_type:
+                            authenticator?.meta?.type === "Xbox"
+                                ? "microsoft"
+                                : "offline",
+                    },
+                },
+            );
+            if (error) return { allowed: true };
+            return data;
+        } catch (err) {
+            console.error("Impossible de vérifier le joueur :", err);
+            return { allowed: true };
+        }
+    }
+
     async startGame() {
         let launch = new Launch();
         let configClient = await this.db.readData("configClient");
@@ -358,28 +418,29 @@ class Home {
         let infoStarting = document.querySelector(".info-starting-game-text");
         let progressBar = document.querySelector(".progress-bar");
 
+        let access = await this.checkPlayerAllowed(authenticator);
+        if (!access.allowed) {
+            let popupBan = new popup();
+            popupBan.openPopup({
+                title: "Accès refusé",
+                content:
+                    access.reason || "Vous n'êtes pas autorisé à jouer.",
+                color: "red",
+                options: true,
+            });
+            return;
+        }
+
         const path = `${await appdata()}/.crazytorgnole`;
         console.log(path + " appdata: " + (await appdata()));
-
-        let versionOverride = configClient.minecraft_version_override;
-
-        let instanceName = versionOverride
-            ? `${options.name}_${versionOverride.minecraft_version}_${
-                  versionOverride.loader_type !== "none"
-                      ? `${versionOverride.loader_type}-${versionOverride.loader_version}`
-                      : "vanilla"
-              }`
-            : options.name;
 
         let opt = {
             url: options.url,
             authenticator: authenticator,
             timeout: 10000,
             path: path,
-            instance: instanceName,
-            version:
-                versionOverride?.minecraft_version ||
-                options.loadder.minecraft_version,
+            instance: options.name,
+            version: options.loadder.minecraft_version,
             detached:
                 configClient.launcher_config.closeLauncher == "close-all"
                     ? false
@@ -387,20 +448,11 @@ class Home {
             downloadFileMultiple: configClient.launcher_config.download_multi,
             intelEnabledMac: configClient.launcher_config.intelEnabledMac,
 
-            loader: versionOverride
-                ? {
-                      type: versionOverride.loader_type,
-                      build: versionOverride.loader_version,
-                      enable: versionOverride.loader_type !== "none",
-                  }
-                : {
-                      type: options.loadder.loadder_type,
-                      build: options.loadder.loadder_version,
-                      enable:
-                          options.loadder.loadder_type == "none"
-                              ? false
-                              : true,
-                  },
+            loader: {
+                type: options.loadder.loadder_type,
+                build: options.loadder.loadder_version,
+                enable: options.loadder.loadder_type !== "none",
+            },
 
             verify: options.verify,
 

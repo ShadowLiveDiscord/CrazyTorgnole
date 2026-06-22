@@ -55,6 +55,7 @@ class Settings {
                     document
                         .querySelector(`#account-tab`)
                         .classList.add("active-container-settings");
+                    window.dispatchEvent(new CustomEvent("home:refresh"));
                     return changePanel("home");
                 }
 
@@ -466,17 +467,57 @@ class Settings {
         let applyBtn = document.querySelector(".mc-version-apply");
         let resetBtn = document.querySelector(".mc-version-reset");
         let currentText = document.querySelector(".mc-version-current");
+        let instancesListEl = document.querySelector(".mc-instances-list");
         let latestRelease = null;
 
-        let renderCurrent = (configClient) => {
-            let override = configClient?.minecraft_version_override;
-            currentText.textContent = override
-                ? `Version forcée : ${override.minecraft_version}${
-                      override.loader_type !== "none"
-                          ? ` + ${override.loader_type} ${override.loader_version}`
-                          : " (vanilla)"
-                  }`
-                : "Version par défaut de l'instance (avec mods si configurés).";
+        let describeInstance = (instance) =>
+            `${instance.loadder.minecraft_version}${
+                instance.loadder.loadder_type !== "none"
+                    ? ` + ${instance.loadder.loadder_type} ${instance.loadder.loadder_version}`
+                    : " (vanilla)"
+            }`;
+
+        let renderCurrent = async () => {
+            let configClient = await this.db.readData("configClient");
+            let instances = await config.getInstanceList();
+            let active =
+                instances.find((i) => i.name === configClient?.instance_selct) ||
+                instances.find((i) => !i.custom);
+
+            currentText.textContent = active
+                ? `Instance active : ${active.name} — ${describeInstance(active)}`
+                : "Aucune instance.";
+
+            instancesListEl.innerHTML = "";
+            let customInstances = instances.filter((i) => i.custom);
+            if (!customInstances.length) {
+                instancesListEl.innerHTML =
+                    '<div class="mc-instances-empty">Aucune instance créée pour le moment.</div>';
+                return;
+            }
+            for (let instance of customInstances) {
+                let row = document.createElement("div");
+                row.classList.add("mc-instance-row");
+                if (instance.name === active?.name)
+                    row.classList.add("active");
+                row.innerHTML = `
+                    <div class="mc-instance-row-name">${instance.name} — ${describeInstance(instance)}</div>
+                    <div class="mc-instance-row-delete">✕</div>
+                `;
+                row.addEventListener("click", async (e) => {
+                    if (e.target.closest(".mc-instance-row-delete")) {
+                        await config.removeCustomInstance(instance.name);
+                        window.dispatchEvent(new CustomEvent("home:refresh"));
+                        return renderCurrent();
+                    }
+                    let configClient = await this.db.readData("configClient");
+                    configClient.instance_selct = instance.name;
+                    await this.db.updateData("configClient", configClient);
+                    window.dispatchEvent(new CustomEvent("home:refresh"));
+                    renderCurrent();
+                });
+                instancesListEl.appendChild(row);
+            }
         };
 
         let refreshBuilds = async () => {
@@ -503,8 +544,7 @@ class Settings {
             buildSelect.disabled = false;
         };
 
-        let configClient = await this.db.readData("configClient");
-        renderCurrent(configClient);
+        await renderCurrent();
 
         try {
             let res = await fetch(
@@ -531,14 +571,9 @@ class Settings {
             versionSelect.innerHTML = "";
             versionSelect.appendChild(releaseGroup);
             versionSelect.appendChild(snapshotGroup);
-
-            let override = configClient?.minecraft_version_override;
-            versionSelect.value =
-                override?.minecraft_version || latestRelease;
-            loaderTypeSelect.value = override?.loader_type || "none";
+            versionSelect.value = latestRelease;
+            loaderTypeSelect.value = "none";
             await refreshBuilds();
-            if (override?.loader_version)
-                buildSelect.value = override.loader_version;
         } catch (err) {
             console.error(
                 "Impossible de récupérer les versions Minecraft :",
@@ -558,24 +593,51 @@ class Settings {
                 alert("Choisissez un build de loader.");
                 return;
             }
-            let configClient = await this.db.readData("configClient");
-            configClient.minecraft_version_override = {
-                minecraft_version: versionSelect.value,
-                loader_type: loaderType,
-                loader_version: loaderType !== "none" ? buildSelect.value : "",
-            };
-            await this.db.updateData("configClient", configClient);
-            renderCurrent(configClient);
+
+            let mcVersion = versionSelect.value;
+            let loaderLabel =
+                loaderType !== "none"
+                    ? `${loaderType}-${buildSelect.value}`
+                    : "vanilla";
+            let instanceName = `CrazyTorgnole_${mcVersion}_${loaderLabel}`;
+
+            let instances = await config.getInstanceList();
+            let baseInstance = instances.find((i) => !i.custom) || {};
+
+            await config.addCustomInstance({
+                name: instanceName,
+                url: null,
+                whitelistActive: false,
+                whitelist: [],
+                status: null,
+                loadder: {
+                    minecraft_version: mcVersion,
+                    loadder_type: loaderType,
+                    loadder_version:
+                        loaderType !== "none" ? buildSelect.value : "",
+                },
+                verify: true,
+                ignored: baseInstance.ignored || [],
+                jvm_args: baseInstance.jvm_args || [],
+            });
+
+            window.dispatchEvent(new CustomEvent("home:refresh"));
+            await renderCurrent();
         });
 
         resetBtn.addEventListener("click", async () => {
             let configClient = await this.db.readData("configClient");
-            delete configClient.minecraft_version_override;
-            await this.db.updateData("configClient", configClient);
+            let instances = await config.getInstanceList();
+            let baseInstance = instances.find((i) => !i.custom);
+            if (baseInstance) {
+                configClient.instance_selct = baseInstance.name;
+                await this.db.updateData("configClient", configClient);
+            }
             if (latestRelease) versionSelect.value = latestRelease;
             loaderTypeSelect.value = "none";
             await refreshBuilds();
-            renderCurrent(configClient);
+            window.dispatchEvent(new CustomEvent("home:refresh"));
+            await renderCurrent();
         });
     }
 }

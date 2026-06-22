@@ -384,6 +384,12 @@
     color: var(--element-color);
 }
 
+.active-version-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ff9645;
+}
+
 .info-starting-game-text {
     font-size: 0.95rem;
     font-weight: 600;
