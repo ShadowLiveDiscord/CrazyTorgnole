@@ -1,6 +1,6 @@
 {
   "name": "crazytorgnole",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Launcher Minecraft avec authentification Microsoft, style NyleLauncher",
   "main": "src/app.js",
   "scripts": {

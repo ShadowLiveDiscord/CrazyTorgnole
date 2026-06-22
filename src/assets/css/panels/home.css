@@ -477,6 +477,10 @@
 
 .instance-select:before {
     content: "⋮";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
     pointer-events: none;
     line-height: 1;
 }
