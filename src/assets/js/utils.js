@@ -39,6 +39,10 @@ async function addAccount(data) {
         skin = await new skin2D().createHeadTexture(
             data.profile.skins[0].base64,
         );
+    // Le changement de skin passe par l'API Mojang (PUT/DELETE
+    // minecraftservices.com/.../skins), qui exige un access_token Microsoft
+    // valide : impossible pour les comptes hors-ligne, qui n'en ont pas.
+    let isPremium = data.meta?.type === "Xbox";
     let div = document.createElement("div");
     div.classList.add("account");
     div.id = data.ID;
@@ -48,6 +52,13 @@ async function addAccount(data) {
             <div class="profile-pseudo">${data.name}</div>
             <div class="profile-uuid">${data.uuid}</div>
         </div>
+        ${
+            isPremium
+                ? `<div class="skin-profile" id="${data.ID}" title="Gérer le skin">
+                <i class="fa-solid fa-shirt skin-profile-icon"></i>
+            </div>`
+                : ""
+        }
         <div class="delete-profile" id="${data.ID}">
             <div class="icon-account-delete delete-profile-icon">
                 <i class="fa-solid fa-trash"></i>

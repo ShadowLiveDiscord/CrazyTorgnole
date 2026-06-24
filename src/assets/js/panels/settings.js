@@ -8,7 +8,9 @@ import {
     setStatus,
     Slider,
 } from "../utils.js";
+import { skin2D } from "../utils/skin.js";
 const { ipcRenderer, shell } = require("electron");
+const { Microsoft } = require("minecraft-java-core");
 const os = require("os");
 const fs = require("fs");
 
@@ -20,6 +22,7 @@ class Settings {
         this.db = new database();
         this.navBTN();
         this.accounts();
+        this.skins();
         this.ram();
         this.javaPath();
         this.resolution();
@@ -149,6 +152,207 @@ class Settings {
                     popupAccount.closePopup();
                 }
             });
+    }
+
+    skins() {
+        let skinPopup = document.querySelector(".skin-popup");
+        let fileInput = document.querySelector(".skin-file-input");
+        let fileNameEl = document.querySelector(".skin-file-name");
+        let errorEl = document.querySelector(".skin-popup-error");
+        let applyBtn = document.querySelector(".skin-apply-btn");
+        let resetBtn = document.querySelector(".skin-reset-btn");
+        let closeBtn = document.querySelector(".close-skin-popup");
+        let currentAccountId = null;
+
+        let closeSkinPopup = () => {
+            skinPopup.style.display = "none";
+            fileInput.value = "";
+            fileNameEl.textContent = "";
+            errorEl.textContent = "";
+            currentAccountId = null;
+        };
+
+        document
+            .querySelector(".accounts-list")
+            .addEventListener("click", async (e) => {
+                if (!e.target.classList.contains("skin-profile")) return;
+                currentAccountId = e.target.id;
+                let account = await this.db.readData(
+                    "accounts",
+                    currentAccountId,
+                );
+                errorEl.textContent = "";
+                fileInput.value = "";
+                fileNameEl.textContent = "";
+                let variant = (
+                    account?.profile?.skins?.[0]?.variant || "classic"
+                ).toLowerCase();
+                let radio = document.querySelector(
+                    `input[name="skin-variant"][value="${variant === "slim" ? "slim" : "classic"}"]`,
+                );
+                if (radio) radio.checked = true;
+                await this.renderSkinPreview(account);
+                skinPopup.style.display = "flex";
+            });
+
+        closeBtn.addEventListener("click", closeSkinPopup);
+        skinPopup.addEventListener("click", (e) => {
+            if (e.target === skinPopup) closeSkinPopup();
+        });
+
+        fileInput.addEventListener("change", () => {
+            fileNameEl.textContent = fileInput.files[0]?.name || "";
+        });
+
+        applyBtn.addEventListener("click", async () => {
+            if (!currentAccountId) return;
+            let file = fileInput.files[0];
+            if (!file) {
+                errorEl.textContent = "Sélectionne d'abord une image PNG.";
+                return;
+            }
+            let variant = document.querySelector(
+                'input[name="skin-variant"]:checked',
+            ).value;
+
+            applyBtn.disabled = true;
+            errorEl.textContent = "";
+            try {
+                let account = await this.db.readData(
+                    "accounts",
+                    currentAccountId,
+                );
+                let updated = await this.uploadSkin(account, file, variant);
+                await this.saveSkinUpdate(currentAccountId, updated);
+                await this.renderSkinPreview(updated);
+                fileInput.value = "";
+                fileNameEl.textContent = "";
+            } catch (err) {
+                console.error("Erreur lors de l'envoi du skin :", err);
+                errorEl.textContent =
+                    err.message || "Échec de l'envoi du skin.";
+            } finally {
+                applyBtn.disabled = false;
+            }
+        });
+
+        resetBtn.addEventListener("click", async () => {
+            if (!currentAccountId) return;
+            resetBtn.disabled = true;
+            errorEl.textContent = "";
+            try {
+                let account = await this.db.readData(
+                    "accounts",
+                    currentAccountId,
+                );
+                let updated = await this.resetSkin(account);
+                await this.saveSkinUpdate(currentAccountId, updated);
+                await this.renderSkinPreview(updated);
+            } catch (err) {
+                console.error(
+                    "Erreur lors de la réinitialisation du skin :",
+                    err,
+                );
+                errorEl.textContent =
+                    err.message || "Échec de la réinitialisation du skin.";
+            } finally {
+                resetBtn.disabled = false;
+            }
+        });
+    }
+
+    async renderSkinPreview(account) {
+        let previewEl = document.querySelector(".skin-preview");
+        let base64 = account?.profile?.skins?.[0]?.base64;
+        if (!base64) {
+            previewEl.style.backgroundImage = "";
+            return;
+        }
+        let head = await new skin2D().createHeadTexture(base64);
+        previewEl.style.backgroundImage = `url(${head})`;
+    }
+
+    // L'API officielle Mojang (minecraftservices.com) n'accepte les
+    // changements de skin que pour un compte Microsoft authentifié : on
+    // rafraîchit toujours le token avant d'appeler l'API pour éviter un 401
+    // si l'access_token stocké a expiré depuis la dernière connexion.
+    async uploadSkin(account, file, variant) {
+        let auth = new Microsoft(this.config.client_id);
+        let refreshed = await auth.refresh(account);
+        if (refreshed.error) throw new Error(refreshed.error);
+
+        let form = new FormData();
+        form.append("variant", variant);
+        form.append("file", file, file.name);
+
+        let response = await fetch(
+            "https://api.minecraftservices.com/minecraft/profile/skins",
+            {
+                method: "POST",
+                headers: { Authorization: `Bearer ${refreshed.access_token}` },
+                body: form,
+            },
+        );
+        if (!response.ok) {
+            throw new Error(
+                `L'API Mojang a refusé l'image (code ${response.status}). Vérifie qu'il s'agit bien d'un PNG 64x64.`,
+            );
+        }
+
+        let profile = await auth.getProfile({
+            access_token: refreshed.access_token,
+        });
+        if (profile.error) throw new Error(profile.error);
+
+        refreshed.profile = { skins: profile.skins, capes: profile.capes };
+        return refreshed;
+    }
+
+    async resetSkin(account) {
+        let auth = new Microsoft(this.config.client_id);
+        let refreshed = await auth.refresh(account);
+        if (refreshed.error) throw new Error(refreshed.error);
+
+        let response = await fetch(
+            "https://api.minecraftservices.com/minecraft/profile/skins/active",
+            {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${refreshed.access_token}` },
+            },
+        );
+        if (!response.ok && response.status !== 204) {
+            throw new Error(
+                `Échec de la réinitialisation (code ${response.status}).`,
+            );
+        }
+
+        let profile = await auth.getProfile({
+            access_token: refreshed.access_token,
+        });
+        if (profile.error) throw new Error(profile.error);
+
+        refreshed.profile = { skins: profile.skins, capes: profile.capes };
+        return refreshed;
+    }
+
+    async saveSkinUpdate(accountId, updated) {
+        updated.ID = accountId;
+        await this.db.updateData("accounts", updated, accountId);
+
+        let row = document.getElementById(accountId);
+        let base64 = updated?.profile?.skins?.[0]?.base64;
+        if (row && base64) {
+            let img = row.querySelector(".profile-image");
+            if (img) {
+                let head = await new skin2D().createHeadTexture(base64);
+                img.style.backgroundImage = `url(${head})`;
+            }
+        }
+
+        let configClient = await this.db.readData("configClient");
+        if (configClient?.account_selected === accountId) {
+            await accountSelect(updated);
+        }
     }
 
     async setInstance(auth) {

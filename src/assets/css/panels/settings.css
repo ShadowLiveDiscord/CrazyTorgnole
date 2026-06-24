@@ -154,7 +154,7 @@
     display: flex;
     justify-content: space-around;
     align-items: center;
-    width: 380px;
+    width: 430px;
     height: 92px;
     margin: 1rem;
     border-radius: 14px;
@@ -247,6 +247,184 @@
 
 .delete-profile-icon {
     pointer-events: none;
+}
+
+.skin-profile {
+    width: 50px;
+    height: 50px;
+    background: rgba(123, 47, 247, 0.12);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #c9a6ff;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.skin-profile:hover {
+    background: rgba(123, 47, 247, 0.25);
+}
+
+.skin-profile-icon {
+    pointer-events: none;
+}
+
+.skin-popup {
+    position: fixed;
+    display: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 30;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.skin-tab {
+    position: relative;
+    background: #15151a;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    padding: 1.5rem 2rem;
+    width: 320px;
+}
+
+.close-skin-popup {
+    position: absolute;
+    display: flex;
+    top: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--element-color);
+    height: 28px;
+    width: 28px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.close-skin-popup:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--color);
+}
+
+.skin-tab p {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color);
+}
+
+.skin-preview {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 1rem;
+    background: url(../../images/default/steve.png);
+    background-size: cover;
+    border-radius: 14px;
+    image-rendering: pixelated;
+    border: 1px solid rgba(178, 102, 255, 0.3);
+}
+
+.skin-file-label {
+    display: block;
+    background: rgba(123, 47, 247, 0.12);
+    border: 1px dashed rgba(178, 102, 255, 0.4);
+    color: #c9a6ff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.skin-file-label:hover {
+    background: rgba(123, 47, 247, 0.22);
+}
+
+.skin-file-name {
+    font-size: 0.7rem;
+    color: var(--element-color);
+    margin-top: 0.4rem;
+    min-height: 1em;
+}
+
+.skin-variant-choice {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--color);
+}
+
+.skin-variant-choice label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+}
+
+.skin-popup-error {
+    color: #ff5c5c;
+    font-size: 0.75rem;
+    margin-top: 0.8rem;
+    min-height: 1em;
+}
+
+.skin-popup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.skin-apply-btn,
+.skin-reset-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.skin-apply-btn {
+    background: linear-gradient(180deg, #a866ff, #7b2ff7);
+    color: #fff;
+}
+
+.skin-apply-btn:hover {
+    box-shadow: 0 4px 14px rgba(123, 47, 247, 0.45);
+}
+
+.skin-apply-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.skin-reset-btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--element-color);
+}
+
+.skin-reset-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color);
 }
 
 .memory-slider {

@@ -27,6 +27,33 @@
         </div>
     </div>
 
+    <div class="skin-popup">
+        <div class="skin-tab">
+            <div class="close-skin-popup icon-close">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <p>Gérer le skin</p>
+
+            <div class="skin-preview"></div>
+
+            <label class="skin-file-label" for="skin-file-input">Choisir une image PNG (64x64)</label>
+            <input type="file" id="skin-file-input" class="skin-file-input" accept="image/png" hidden>
+            <div class="skin-file-name"></div>
+
+            <div class="skin-variant-choice">
+                <label><input type="radio" name="skin-variant" value="classic" checked> Classique</label>
+                <label><input type="radio" name="skin-variant" value="slim"> Fine (Alex)</label>
+            </div>
+
+            <div class="skin-popup-error"></div>
+
+            <div class="skin-popup-actions">
+                <button class="skin-apply-btn">Appliquer</button>
+                <button class="skin-reset-btn">Réinitialiser par défaut</button>
+            </div>
+        </div>
+    </div>
+
     <div id="java-tab" class="container-settings content-scroll">
         <div class="titre-tab">Paramètre de votre RAM</div>
         <div class="settings-elements-box">
