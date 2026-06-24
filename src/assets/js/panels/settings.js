@@ -1076,6 +1076,11 @@ class Settings {
             account,
         );
         if (refreshed.error) return null;
+        // Microsoft fait tourner le refresh_token à chaque utilisation : si
+        // on ne sauvegarde pas le résultat, l'appel suivant relit l'ancien
+        // refresh_token (déjà invalidé) depuis la base et échoue.
+        refreshed.ID = account.ID;
+        await this.db.updateData("accounts", refreshed, account.ID);
         return refreshed.access_token;
     }
 
