@@ -40,7 +40,7 @@ body {
     border: 3px solid rgba(255, 255, 255, 0.08);
     border-radius: 50%;
     box-shadow:
-        0 0 0 6px rgba(255, 122, 26, 0.08),
+        0 0 0 6px rgba(123, 47, 247, 0.08),
         0 12px 30px rgba(0, 0, 0, 0.5);
     transition:
         opacity 0.3s,
@@ -77,7 +77,7 @@ body {
 .splash-author {
     text-align: center;
     transition: opacity 1.5s;
-    color: #ff9645;
+    color: #a866ff;
     opacity: 0;
 }
 
@@ -106,11 +106,11 @@ body {
     width: 200px;
     padding: 0.5rem 0;
     color: #fff;
-    background: linear-gradient(180deg, #ff9645, #ff5c1a);
+    background: linear-gradient(180deg, #a866ff, #7b2ff7);
     border: none;
     border-radius: 15px;
     font-weight: 700;
-    box-shadow: 0 6px 18px rgba(255, 90, 30, 0.35);
+    box-shadow: 0 6px 18px rgba(123, 47, 247, 0.35);
     transition: var(--transition);
 }
 

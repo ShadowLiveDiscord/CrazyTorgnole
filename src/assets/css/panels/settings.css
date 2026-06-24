@@ -62,13 +62,13 @@
 }
 
 .active-settings-BTN {
-    background: linear-gradient(180deg, #ff9645, #ff5c1a);
+    background: linear-gradient(180deg, #a866ff, #7b2ff7);
     color: #fff;
-    box-shadow: 0 6px 18px rgba(255, 90, 30, 0.35);
+    box-shadow: 0 6px 18px rgba(123, 47, 247, 0.35);
 }
 
 .active-settings-BTN:hover {
-    background: linear-gradient(180deg, #ff9645, #ff5c1a);
+    background: linear-gradient(180deg, #a866ff, #7b2ff7);
     color: #fff;
 }
 
@@ -166,8 +166,8 @@
 }
 
 .account-select {
-    border: 1px solid #ff7a1a;
-    box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.35) inset;
+    border: 1px solid #7b2ff7;
+    box-shadow: 0 0 0 1px rgba(123, 47, 247, 0.35) inset;
 }
 
 .accounts-list #add {
@@ -179,7 +179,7 @@
     width: 64px;
     height: 64px;
     font-size: 1.6rem;
-    color: #ff7a1a;
+    color: #7b2ff7;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -272,14 +272,14 @@
     display: block;
     width: 18px;
     height: 18px;
-    background: linear-gradient(180deg, #ff9645, #ff5c1a);
+    background: linear-gradient(180deg, #a866ff, #7b2ff7);
     border: none;
     transition:
         background-color 0.2s,
         border 0.2s;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(255, 90, 30, 0.45);
+    box-shadow: 0 2px 8px rgba(123, 47, 247, 0.45);
 }
 
 .slider-touch-left span:after,
@@ -313,7 +313,7 @@
     display: block;
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #ff9645, #ff5c1a);
+    background: linear-gradient(90deg, #a866ff, #7b2ff7);
     transition: background-color 0.2s;
 }
 
@@ -367,7 +367,7 @@
 }
 
 .mc-instance-row.active {
-    box-shadow: 0 0 0 2px #ff7a1a;
+    box-shadow: 0 0 0 2px #7b2ff7;
 }
 
 .mc-instance-row-name {
@@ -413,12 +413,12 @@
 
 .mods-search-input:focus {
     outline: none;
-    border-color: rgba(255, 122, 26, 0.5);
+    border-color: rgba(123, 47, 247, 0.5);
 }
 
 .mods-instance-info {
     text-align: center;
-    color: #ff9645;
+    color: #a866ff;
     font-weight: 700;
     font-size: 0.8rem;
 }
@@ -550,7 +550,7 @@
 .fullscreen-toggle input {
     width: 16px;
     height: 16px;
-    accent-color: #ff7a1a;
+    accent-color: #7b2ff7;
     cursor: pointer;
 }
 
@@ -600,6 +600,6 @@
 }
 
 .active-close {
-    box-shadow: 0 0 0 2px #ff7a1a;
-    background: rgba(255, 122, 26, 0.08);
+    box-shadow: 0 0 0 2px #7b2ff7;
+    background: rgba(123, 47, 247, 0.08);
 }

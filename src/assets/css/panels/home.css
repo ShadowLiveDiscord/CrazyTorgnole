@@ -314,8 +314,8 @@
 }
 
 .account-dot.active {
-    background: #ff7a1a;
-    box-shadow: 0 0 6px rgba(255, 122, 26, 0.6);
+    background: #7b2ff7;
+    box-shadow: 0 0 6px rgba(123, 47, 247, 0.6);
 }
 
 .account-dropdown-divider {
@@ -326,7 +326,7 @@
 
 .account-dropdown-add {
     padding: 0.55rem 0.6rem;
-    color: #ff7a1a;
+    color: #7b2ff7;
     font-size: 0.85rem;
     font-weight: 700;
     border-radius: 10px;
@@ -334,7 +334,7 @@
 }
 
 .account-dropdown-add:hover {
-    background: rgba(255, 122, 26, 0.1);
+    background: rgba(123, 47, 247, 0.1);
 }
 
 .account-dropdown-add.disabled {
@@ -574,7 +574,7 @@
 }
 
 .active-instance {
-    border-color: #ff7a1a;
-    box-shadow: 0 0 0 1px rgba(255, 122, 26, 0.35) inset;
-    color: #ff9645;
+    border-color: #7b2ff7;
+    box-shadow: 0 0 0 1px rgba(123, 47, 247, 0.35) inset;
+    color: #a866ff;
 }
