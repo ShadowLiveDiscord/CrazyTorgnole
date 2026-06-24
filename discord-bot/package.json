@@ -1,0 +1,14 @@
+{
+  "name": "nebula-launcher-patchnote-bot",
+  "version": "1.0.0",
+  "description": "Bot Discord qui annonce automatiquement les nouvelles releases GitHub de Nebula Launcher",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5"
+  }
+}
