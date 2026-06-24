@@ -1189,12 +1189,16 @@ class Settings {
                             error?.message || "Échec de la demande d'upload.",
                         );
 
+                    // Windows n'associe aucun type MIME aux .jar : file.type
+                    // est vide, donc on force explicitement le content-type
+                    // plutôt que de laisser uploadToSignedUrl deviner.
                     let { error: uploadError } = await supabase.storage
                         .from("modpacks")
                         .uploadToSignedUrl(
                             uploadInfo.path,
                             uploadInfo.token,
                             file,
+                            { contentType: "application/java-archive" },
                         );
                     if (uploadError) throw uploadError;
 
