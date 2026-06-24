@@ -9,10 +9,12 @@ import {
     Slider,
 } from "../utils.js";
 import { skin2D } from "../utils/skin.js";
+import supabase from "../utils/supabase.js";
 const { ipcRenderer, shell } = require("electron");
 const { Microsoft } = require("minecraft-java-core");
 const os = require("os");
 const fs = require("fs");
+const crypto = require("crypto");
 
 class Settings {
     static id = "settings";
@@ -29,6 +31,7 @@ class Settings {
         this.launcher();
         this.mcVersion();
         this.modsManager();
+        this.admin();
     }
 
     navBTN() {
@@ -907,26 +910,31 @@ class Settings {
                 return;
             }
 
+            // Sur l'instance verrouillée, les mods viennent uniquement du
+            // modpack publié par l'admin (cf. bouton "Mettre à jour" sur
+            // l'accueil) : pas de bouton de suppression individuel ici.
             installedEl.innerHTML = files
                 .map(
                     (file) => `
                         <div class="mc-instance-row" data-file="${file}">
                             <div class="mc-instance-row-name">${file}</div>
-                            <div class="mc-instance-row-delete">✕</div>
+                            ${active.modsLocked ? "" : '<div class="mc-instance-row-delete">✕</div>'}
                         </div>
                     `,
                 )
                 .join("");
 
-            installedEl.querySelectorAll(".mc-instance-row").forEach((row) => {
-                row.querySelector(".mc-instance-row-delete").addEventListener(
-                    "click",
-                    () => {
-                        fs.unlinkSync(`${modsPath}/${row.dataset.file}`);
-                        renderInstalled(active);
-                    },
-                );
-            });
+            if (!active.modsLocked) {
+                installedEl.querySelectorAll(".mc-instance-row").forEach((row) => {
+                    row.querySelector(".mc-instance-row-delete").addEventListener(
+                        "click",
+                        () => {
+                            fs.unlinkSync(`${modsPath}/${row.dataset.file}`);
+                            renderInstalled(active);
+                        },
+                    );
+                });
+            }
         };
 
         let renderResults = (mods, active, modsPath) => {
@@ -971,6 +979,12 @@ class Settings {
             let active = await this.getActiveInstance();
             if (!active) return;
 
+            if (active.modsLocked) {
+                resultsEl.innerHTML =
+                    '<div class="mc-instances-empty">Les mods de cette instance sont gérés par l\'administrateur. Utilise le bouton "Mettre à jour" sur l\'accueil pour récupérer la dernière version.</div>';
+                return;
+            }
+
             if (active.loadder.loadder_type === "none") {
                 resultsEl.innerHTML =
                     '<div class="mc-instances-empty">Cette instance est en Vanilla. Configurez un mod loader (Forge/NeoForge/Fabric/Quilt) dans l\'onglet VERSION pour installer des mods.</div>';
@@ -1006,16 +1020,22 @@ class Settings {
             if (e.key === "Enter") runSearch();
         });
 
+        let applyLockState = (active) => {
+            infoEl.textContent = `Instance active : ${active.name} (${active.loadder.minecraft_version}${active.loadder.loadder_type !== "none" ? ` + ${active.loadder.loadder_type}` : " vanilla"})${active.modsLocked ? " — géré par l'administrateur" : ""}`;
+            searchInput.disabled = !!active.modsLocked;
+            searchBtn.classList.toggle("disabled", !!active.modsLocked);
+        };
+
         let active = await this.getActiveInstance();
         if (active) {
-            infoEl.textContent = `Instance active : ${active.name} (${active.loadder.minecraft_version}${active.loadder.loadder_type !== "none" ? ` + ${active.loadder.loadder_type}` : " vanilla"})`;
+            applyLockState(active);
             await renderInstalled(active);
         }
 
         window.addEventListener("home:refresh", async () => {
             let active = await this.getActiveInstance();
             if (!active) return;
-            infoEl.textContent = `Instance active : ${active.name} (${active.loadder.minecraft_version}${active.loadder.loadder_type !== "none" ? ` + ${active.loadder.loadder_type}` : " vanilla"})`;
+            applyLockState(active);
             await renderInstalled(active);
         });
     }
@@ -1033,6 +1053,223 @@ class Settings {
         let fileRes = await this.fetchWithTimeout(file.url, 30000);
         let buffer = Buffer.from(await fileRes.arrayBuffer());
         fs.writeFileSync(`${modsPath}/${file.filename}`, buffer);
+    }
+
+    // L'instance verrouillée à administrer : celle marquée modsLocked dans
+    // files.json (une seule pour l'instant, "Nebula").
+    async getLockedInstance() {
+        let instances = await config.getInstanceList();
+        return instances.find((i) => i.modsLocked);
+    }
+
+    // L'identité admin est vérifiée côté serveur (Edge Function admin-modpack)
+    // via l'access_token Microsoft, jamais via un pseudo/uuid auto-déclaré :
+    // voir la note de sécurité dans la fonction elle-même.
+    async getFreshAccessToken() {
+        let configClient = await this.db.readData("configClient");
+        let account = await this.db.readData(
+            "accounts",
+            configClient?.account_selected,
+        );
+        if (!account || account.meta?.type !== "Xbox") return null;
+        let refreshed = await new Microsoft(this.config.client_id).refresh(
+            account,
+        );
+        if (refreshed.error) return null;
+        return refreshed.access_token;
+    }
+
+    async admin() {
+        let navBtn = document.querySelector(".admin-nav-btn");
+        let dropzone = document.querySelector(".admin-dropzone");
+        let fileInput = document.querySelector(".admin-file-input");
+        let uploadStatusEl = document.querySelector(".admin-upload-status");
+        let modsListEl = document.querySelector(".admin-mods-list");
+        let publishBtn = document.querySelector(".admin-publish-btn");
+        let publishStatusEl = document.querySelector(".admin-publish-status");
+
+        this.adminMods = [];
+        this.adminAccessToken = null;
+
+        let renderMods = () => {
+            if (!this.adminMods.length) {
+                modsListEl.innerHTML =
+                    '<div class="mc-instances-empty">Aucun mod publié pour le moment.</div>';
+                return;
+            }
+            modsListEl.innerHTML = this.adminMods
+                .map(
+                    (mod) => `
+                        <div class="admin-mod-row${mod.pending ? " pending" : ""}" data-filename="${mod.filename}">
+                            <div class="admin-mod-row-name">${mod.filename}${mod.pending ? " (à publier)" : ""}</div>
+                            <i class="fa-solid fa-xmark admin-mod-row-remove"></i>
+                        </div>
+                    `,
+                )
+                .join("");
+            modsListEl.querySelectorAll(".admin-mod-row-remove").forEach((btn) => {
+                btn.addEventListener("click", (e) => {
+                    let filename = e.target.closest(".admin-mod-row").dataset.filename;
+                    this.adminMods = this.adminMods.filter(
+                        (m) => m.filename !== filename,
+                    );
+                    renderMods();
+                });
+            });
+        };
+
+        let loadCurrentManifest = async () => {
+            let locked = await this.getLockedInstance();
+            if (!locked) return;
+            let { data: manifest } = await supabase.functions.invoke(
+                "get-modpack",
+                { body: { instance_name: locked.name } },
+            );
+            this.adminMods = (manifest?.mods || []).map((mod) => ({
+                ...mod,
+                pending: false,
+            }));
+            renderMods();
+        };
+
+        let refreshAdminAccess = async () => {
+            try {
+                let accessToken = await this.getFreshAccessToken();
+                if (!accessToken) {
+                    navBtn.hidden = true;
+                    return;
+                }
+                let { data, error } = await supabase.functions.invoke(
+                    "admin-modpack",
+                    { body: { action: "whoami", access_token: accessToken } },
+                );
+                if (error || !data?.is_admin) {
+                    navBtn.hidden = true;
+                    return;
+                }
+                this.adminAccessToken = accessToken;
+                navBtn.hidden = false;
+                await loadCurrentManifest();
+            } catch (err) {
+                console.error("Vérification admin impossible :", err);
+                navBtn.hidden = true;
+            }
+        };
+
+        window.addEventListener("account:changed", refreshAdminAccess);
+        await refreshAdminAccess();
+
+        let stageFiles = async (files) => {
+            let locked = await this.getLockedInstance();
+            if (!locked) return;
+
+            for (let file of Array.from(files)) {
+                if (!file.name.toLowerCase().endsWith(".jar")) continue;
+
+                uploadStatusEl.textContent = `Envoi de ${file.name}...`;
+                try {
+                    let buffer = Buffer.from(await file.arrayBuffer());
+                    let sha1 = crypto
+                        .createHash("sha1")
+                        .update(buffer)
+                        .digest("hex");
+
+                    let accessToken = await this.getFreshAccessToken();
+                    let { data: uploadInfo, error } =
+                        await supabase.functions.invoke("admin-modpack", {
+                            body: {
+                                action: "request_upload",
+                                access_token: accessToken,
+                                instance_name: locked.name,
+                                filename: file.name,
+                            },
+                        });
+                    if (error || !uploadInfo)
+                        throw new Error(
+                            error?.message || "Échec de la demande d'upload.",
+                        );
+
+                    let { error: uploadError } = await supabase.storage
+                        .from("modpacks")
+                        .uploadToSignedUrl(
+                            uploadInfo.path,
+                            uploadInfo.token,
+                            file,
+                        );
+                    if (uploadError) throw uploadError;
+
+                    this.adminMods = this.adminMods.filter(
+                        (m) => m.filename !== file.name,
+                    );
+                    this.adminMods.push({
+                        filename: file.name,
+                        sha1,
+                        size: file.size,
+                        pending: true,
+                    });
+                    renderMods();
+                } catch (err) {
+                    console.error(`Échec de l'envoi de ${file.name} :`, err);
+                    uploadStatusEl.textContent = `Échec de l'envoi de ${file.name}.`;
+                    return;
+                }
+            }
+            uploadStatusEl.textContent = "";
+        };
+
+        dropzone.addEventListener("click", () => fileInput.click());
+        fileInput.addEventListener("change", () => {
+            stageFiles(fileInput.files);
+            fileInput.value = "";
+        });
+        dropzone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropzone.classList.add("drag-over");
+        });
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.classList.remove("drag-over");
+        });
+        dropzone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropzone.classList.remove("drag-over");
+            stageFiles(e.dataTransfer.files);
+        });
+
+        publishBtn.addEventListener("click", async () => {
+            let locked = await this.getLockedInstance();
+            if (!locked) return;
+
+            publishBtn.classList.add("disabled");
+            publishStatusEl.textContent = "Publication...";
+            try {
+                let accessToken = await this.getFreshAccessToken();
+                let { data, error } = await supabase.functions.invoke(
+                    "admin-modpack",
+                    {
+                        body: {
+                            action: "publish",
+                            access_token: accessToken,
+                            instance_name: locked.name,
+                            mods: this.adminMods.map((mod) => ({
+                                filename: mod.filename,
+                                sha1: mod.sha1,
+                                size: mod.size,
+                            })),
+                        },
+                    },
+                );
+                if (error || !data?.version)
+                    throw new Error(error?.message || "Échec de la publication.");
+
+                publishStatusEl.textContent = `Publié en version ${data.version}.`;
+                await loadCurrentManifest();
+            } catch (err) {
+                console.error("Échec de la publication du modpack :", err);
+                publishStatusEl.textContent = "Échec de la publication.";
+            } finally {
+                publishBtn.classList.remove("disabled");
+            }
+        });
     }
 }
 

@@ -402,6 +402,36 @@
     color: var(--color);
 }
 
+.modpack-update-btn {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid rgba(178, 102, 255, 0.4);
+    border-radius: 50px;
+    background: rgba(123, 47, 247, 0.15);
+    color: #c9a6ff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.55rem 1.2rem;
+    margin-right: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.modpack-update-btn:hover {
+    background: rgba(123, 47, 247, 0.28);
+    border-color: rgba(178, 102, 255, 0.7);
+}
+
+.modpack-update-btn.show {
+    display: flex;
+}
+
+.modpack-update-btn.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
 .play-instance {
     display: flex;
     justify-content: space-between;

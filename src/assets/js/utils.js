@@ -88,6 +88,7 @@ async function accountSelect(data) {
         statusEl.classList.toggle("online", online);
     }
     renderPlaytime(data);
+    window.dispatchEvent(new CustomEvent("account:changed", { detail: data }));
 }
 
 async function renderPlaytime(data) {

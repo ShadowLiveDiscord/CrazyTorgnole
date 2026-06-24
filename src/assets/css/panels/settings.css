@@ -694,6 +694,12 @@
     background: rgba(255, 255, 255, 0.14);
 }
 
+.size-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .resolution-presets {
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -780,4 +786,95 @@
 .active-close {
     box-shadow: 0 0 0 2px #7b2ff7;
     background: rgba(123, 47, 247, 0.08);
+}
+
+.admin-dropzone {
+    border: 2px dashed rgba(178, 102, 255, 0.35);
+    border-radius: 14px;
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--element-color);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 0.5rem;
+}
+
+.admin-dropzone i {
+    font-size: 1.8rem;
+    color: #c9a6ff;
+    display: block;
+    margin-bottom: 0.6rem;
+    pointer-events: none;
+}
+
+.admin-dropzone p {
+    pointer-events: none;
+}
+
+.admin-dropzone:hover,
+.admin-dropzone.drag-over {
+    border-color: rgba(178, 102, 255, 0.8);
+    background: rgba(123, 47, 247, 0.08);
+}
+
+.admin-upload-status {
+    font-size: 0.75rem;
+    color: var(--element-color);
+    margin-top: 0.6rem;
+    min-height: 1em;
+}
+
+.admin-mods-list {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin-mod-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+}
+
+.admin-mod-row.pending {
+    border-color: rgba(178, 102, 255, 0.4);
+    background: rgba(123, 47, 247, 0.08);
+}
+
+.admin-mod-row-name {
+    color: var(--color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-mod-row-remove {
+    color: #ff5c5c;
+    cursor: pointer;
+    flex: none;
+    margin-left: 1rem;
+}
+
+.admin-publish-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.2rem;
+}
+
+.admin-publish-btn {
+    background: linear-gradient(180deg, #a866ff, #7b2ff7);
+    color: #fff;
+}
+
+.admin-publish-status {
+    font-size: 0.8rem;
+    color: var(--element-color);
 }

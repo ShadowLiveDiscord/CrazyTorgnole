@@ -11,6 +11,7 @@
         },
         "verify": true,
         "ignored": ["mods", "config", "resourcepacks", "shaderpacks", "saves", "screenshots", "logs", "crash-reports", "options.txt", "servers.dat"],
-        "jvm_args": []
+        "jvm_args": [],
+        "modsLocked": true
     }
 }

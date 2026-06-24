@@ -8,6 +8,7 @@
             <div id="version" class="nav-settings-btn">VERSION</div>
             <div id="mods" class="nav-settings-btn">MODS</div>
             <div id="launcher" class="nav-settings-btn">LAUNCHER</div>
+            <div id="admin" class="nav-settings-btn admin-nav-btn" hidden>ADMIN</div>
             <div id="save" class="nav-settings-btn">ACCUEIL</div>
         </div>
     </div>
@@ -227,6 +228,30 @@
                 <div class="close-launcher close-btn">Fermer le launcher après le démarrage du jeu</div>
                 <div class="close-none close-btn">Garder le launcher ouvert</div>
                 <div class="close-all close-btn">Fermer le jeu si le launcher est fermé</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-tab" class="container-settings content-scroll">
+        <div class="titre-tab">Administration du modpack</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Les mods publiés ici sont distribués à tous les joueurs sur l'instance verrouillée. Quand tu publies, un bouton "Mettre à jour" apparaît dans leur launcher.
+            </div>
+
+            <div class="admin-dropzone">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Dépose des fichiers .jar ici, ou clique pour parcourir</p>
+                <input type="file" id="admin-file-input" class="admin-file-input" accept=".jar" multiple hidden>
+            </div>
+
+            <div class="admin-upload-status"></div>
+
+            <div class="admin-mods-list"></div>
+
+            <div class="admin-publish-row">
+                <div class="admin-publish-btn size-btn">Publier</div>
+                <div class="admin-publish-status"></div>
             </div>
         </div>
     </div>

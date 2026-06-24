@@ -15,6 +15,8 @@ import supabase from "../utils/supabase.js";
 
 const { Launch } = require("minecraft-java-core");
 const { shell, ipcRenderer } = require("electron");
+const fs = require("fs");
+const crypto = require("crypto");
 
 const MAX_ACCOUNTS = 3;
 const NEWS_CACHE_KEY = "nebula_news_cache";
@@ -49,9 +51,12 @@ class Home {
         this.instancesSelect();
         this.accountWidget();
         this.renderActiveVersion();
-        window.addEventListener("home:refresh", () =>
-            this.renderActiveVersion(),
-        );
+        this.checkModpackUpdate();
+        this.modpackUpdateButton();
+        window.addEventListener("home:refresh", () => {
+            this.renderActiveVersion();
+            this.checkModpackUpdate();
+        });
         document
             .querySelector(".settings-btn")
             .addEventListener("click", (e) => changePanel("settings"));
@@ -84,6 +89,132 @@ class Home {
                 ? ` • ${active.loadder.loadder_type} ${active.loadder.loadder_version}`
                 : " • Vanilla"
         }`;
+    }
+
+    async getActiveInstance() {
+        let configClient = await this.db.readData("configClient");
+        let instances = await config.getInstanceList();
+        return (
+            instances.find((i) => i.name == configClient?.instance_selct) ||
+            instances.find((i) => !i.custom)
+        );
+    }
+
+    async getModsPath(instanceName) {
+        let modsPath = `${await appdata()}/.nebulalauncher/instances/${instanceName}/mods`;
+        if (!fs.existsSync(modsPath)) fs.mkdirSync(modsPath, { recursive: true });
+        return modsPath;
+    }
+
+    sha1File(filePath) {
+        return crypto
+            .createHash("sha1")
+            .update(fs.readFileSync(filePath))
+            .digest("hex");
+    }
+
+    modpackUpdateButton() {
+        let btn = document.querySelector(".modpack-update-btn");
+        if (!btn) return;
+        btn.addEventListener("click", async () => {
+            btn.classList.add("disabled");
+            let originalHTML = btn.innerHTML;
+            try {
+                await this.applyModpackUpdate(btn);
+                btn.classList.remove("show");
+            } catch (err) {
+                console.error("Échec de la mise à jour des mods :", err);
+                btn.innerHTML =
+                    '<i class="fa-solid fa-triangle-exclamation"></i> Échec, réessaie';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 4000);
+            } finally {
+                btn.classList.remove("disabled");
+            }
+        });
+    }
+
+    // Instance verrouillée uniquement : les mods sont publiés par l'admin
+    // via Supabase (table modpacks + bucket Storage), pas par le joueur.
+    async checkModpackUpdate() {
+        let btn = document.querySelector(".modpack-update-btn");
+        if (!btn) return;
+
+        let active = await this.getActiveInstance();
+        if (!active?.modsLocked) {
+            btn.classList.remove("show");
+            return;
+        }
+
+        try {
+            let { data: manifest, error } = await supabase.functions.invoke(
+                "get-modpack",
+                { body: { instance_name: active.name } },
+            );
+            if (error || !manifest || !manifest.version) {
+                btn.classList.remove("show");
+                return;
+            }
+
+            let configClient = await this.db.readData("configClient");
+            let localVersion =
+                configClient?.modpack_versions?.[active.name] || 0;
+
+            btn.classList.toggle("show", manifest.version !== localVersion);
+        } catch (err) {
+            console.error("Impossible de vérifier le modpack :", err);
+        }
+    }
+
+    async applyModpackUpdate(btn) {
+        let active = await this.getActiveInstance();
+        if (!active?.modsLocked) return;
+
+        let { data: manifest, error } = await supabase.functions.invoke(
+            "get-modpack",
+            { body: { instance_name: active.name } },
+        );
+        if (error || !manifest) throw new Error("Modpack introuvable.");
+
+        let modsPath = await this.getModsPath(active.name);
+        let manifestFilenames = new Set(
+            manifest.mods.map((mod) => mod.filename),
+        );
+
+        let localFiles = fs
+            .readdirSync(modsPath)
+            .filter((f) => f.toLowerCase().endsWith(".jar"));
+
+        for (let file of localFiles) {
+            if (!manifestFilenames.has(file)) {
+                fs.unlinkSync(`${modsPath}/${file}`);
+            }
+        }
+
+        let total = manifest.mods.length;
+        let done = 0;
+        for (let mod of manifest.mods) {
+            done += 1;
+            btn.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> Mise à jour ${done}/${total}...`;
+
+            let filePath = `${modsPath}/${mod.filename}`;
+            let upToDate =
+                fs.existsSync(filePath) &&
+                this.sha1File(filePath) === mod.sha1;
+            if (upToDate) continue;
+
+            let res = await fetch(mod.url);
+            if (!res.ok)
+                throw new Error(`Échec du téléchargement de ${mod.filename}`);
+            let buffer = Buffer.from(await res.arrayBuffer());
+            fs.writeFileSync(filePath, buffer);
+        }
+
+        let configClient = await this.db.readData("configClient");
+        configClient.modpack_versions = configClient.modpack_versions || {};
+        configClient.modpack_versions[active.name] = manifest.version;
+        await this.db.updateData("configClient", configClient);
     }
 
     accountWidget() {
@@ -335,6 +466,7 @@ class Home {
                 );
                 await setStatus(options.status);
                 this.renderActiveVersion();
+                this.checkModpackUpdate();
             }
         });
 
