@@ -1183,8 +1183,16 @@ class Settings {
                 if (!file.name.toLowerCase().endsWith(".jar")) continue;
 
                 uploadStatusEl.textContent = `Envoi de ${file.name}...`;
+                let buffer;
                 try {
-                    let buffer = Buffer.from(await file.arrayBuffer());
+                    buffer = Buffer.from(await file.arrayBuffer());
+                } catch (err) {
+                    console.error(`Lecture initiale de ${file.name} échouée :`, err);
+                    uploadStatusEl.textContent = `Impossible de lire ${file.name} (étape lecture) : ${err.message || err}`;
+                    return;
+                }
+
+                try {
                     let sha1 = crypto
                         .createHash("sha1")
                         .update(buffer)
@@ -1234,7 +1242,7 @@ class Settings {
                     renderMods();
                 } catch (err) {
                     console.error(`Échec de l'envoi de ${file.name} :`, err);
-                    uploadStatusEl.textContent = `Échec de l'envoi de ${file.name} : ${err.message || err}`;
+                    uploadStatusEl.textContent = `Échec de l'envoi de ${file.name} (étape upload) : ${err.message || err}`;
                     return;
                 }
             }
