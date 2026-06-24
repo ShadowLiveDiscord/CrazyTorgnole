@@ -22,7 +22,7 @@ export default class popup {
             this.popup.style.background = "#000000bb";
         }
         this.popupTitle.innerHTML = info.title;
-        this.popupContent.style.color = info.color ? info.color : "#121212";
+        this.popupContent.style.color = info.color ? info.color : "var(--color)";
         this.popupContent.innerHTML = info.content;
 
         if (info.options) {
