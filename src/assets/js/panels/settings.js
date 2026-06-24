@@ -1177,7 +1177,11 @@ class Settings {
 
         let stageFiles = async (files) => {
             let locked = await this.getLockedInstance();
-            if (!locked) return;
+            if (!locked) {
+                uploadStatusEl.textContent =
+                    "Aucune instance verrouillée trouvée (modsLocked). Vérifie que tu es bien sur la dernière version du launcher.";
+                return;
+            }
 
             for (let file of Array.from(files)) {
                 if (!file.name.toLowerCase().endsWith(".jar")) continue;
@@ -1252,7 +1256,7 @@ class Settings {
                     return;
                 }
             }
-            uploadStatusEl.textContent = "";
+            uploadStatusEl.textContent = `${this.adminMods.filter((m) => m.pending).length} fichier(s) prêt(s) à publier.`;
         };
 
         dropzone.addEventListener("click", () => fileInput.click());
@@ -1275,7 +1279,11 @@ class Settings {
 
         publishBtn.addEventListener("click", async () => {
             let locked = await this.getLockedInstance();
-            if (!locked) return;
+            if (!locked) {
+                publishStatusEl.textContent =
+                    "Aucune instance verrouillée trouvée (modsLocked). Vérifie que tu es bien sur la dernière version du launcher.";
+                return;
+            }
 
             publishBtn.classList.add("disabled");
             publishStatusEl.textContent = "Publication...";
