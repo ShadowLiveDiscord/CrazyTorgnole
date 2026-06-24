@@ -184,20 +184,28 @@ class Settings {
         document.getElementById("free-ram").textContent = `${freeMem} Go`;
 
         let sliderDiv = document.querySelector(".memory-slider");
-        sliderDiv.setAttribute("max", Math.trunc((80 * totalMem) / 100));
+        let sliderMin = parseFloat(sliderDiv.getAttribute("min"));
+        let sliderMax = Math.trunc((80 * totalMem) / 100);
+        sliderDiv.setAttribute("max", sliderMax);
 
         let ram = config?.java_config?.java_memory
             ? {
-                  ramMin: config.java_config.java_memory.min,
-                  ramMax: config.java_config.java_memory.max,
+                  ramMin: parseFloat(config.java_config.java_memory.min),
+                  ramMax: parseFloat(config.java_config.java_memory.max),
               }
-            : { ramMin: "1", ramMax: "2" };
+            : { ramMin: 1, ramMax: 2 };
 
-        if (totalMem < ram.ramMin) {
-            config.java_config.java_memory = { min: 1, max: 2 };
-            this.db.updateData("configClient", config);
-            ram = { ramMin: "1", ramMax: "2" };
+        // Borne les valeurs sauvegardées à la plage actuelle : une config
+        // enregistrée sur une machine avec plus/moins de RAM peut sinon
+        // pousser les curseurs hors de la zone visible du slider.
+        ram.ramMin = Math.min(Math.max(ram.ramMin, sliderMin), sliderMax);
+        ram.ramMax = Math.min(Math.max(ram.ramMax, sliderMin), sliderMax);
+        if (ram.ramMin >= ram.ramMax) {
+            ram.ramMin = Math.max(sliderMin, ram.ramMax - sliderMin);
         }
+
+        config.java_config.java_memory = { min: ram.ramMin, max: ram.ramMax };
+        this.db.updateData("configClient", config);
 
         let slider = new Slider(
             ".memory-slider",

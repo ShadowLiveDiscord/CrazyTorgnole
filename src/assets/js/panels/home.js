@@ -17,6 +17,8 @@ const { Launch } = require("minecraft-java-core");
 const { shell, ipcRenderer } = require("electron");
 
 const MAX_ACCOUNTS = 3;
+const NEWS_CACHE_KEY = "nebula_news_cache";
+const NEWS_CACHE_TTL_MS = 15 * 60 * 1000;
 
 // Toujours protégés de la suppression au "verify", quelle que soit la config
 // de l'instance : sans ça, minecraft-java-core efface tout fichier du dossier
@@ -39,6 +41,7 @@ class Home {
         document.querySelector(".launcher-version").textContent =
             `v${pkg.version}`;
         this.socialLick();
+        this.loadNews();
         this.instancesSelect();
         this.accountWidget();
         this.renderActiveVersion();
@@ -167,6 +170,86 @@ class Home {
                 shell.openExternal(e.target.dataset.url);
             });
         });
+    }
+
+    async loadNews() {
+        let list = document.querySelector(".news-list");
+        if (!list) return;
+
+        try {
+            let releases = await this.fetchReleases();
+            this.renderNews(list, releases);
+        } catch (err) {
+            console.error("Impossible de charger les nouveautés :", err);
+            list.innerHTML =
+                '<div class="news-error">Impossible de charger les nouveautés.</div>';
+        }
+    }
+
+    async fetchReleases() {
+        try {
+            let cached = JSON.parse(localStorage.getItem(NEWS_CACHE_KEY));
+            if (cached && Date.now() - cached.timestamp < NEWS_CACHE_TTL_MS) {
+                return cached.releases;
+            }
+        } catch {
+            /* cache absent ou corrompu, on retombe sur le réseau */
+        }
+
+        let owner = pkg.build?.publish?.owner;
+        let repo = pkg.build?.publish?.repo;
+        if (!owner || !repo) return [];
+
+        let res = await fetch(
+            `https://api.github.com/repos/${owner}/${repo}/releases?per_page=5`,
+            { headers: { Accept: "application/vnd.github+json" } },
+        );
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+
+        let releases = (await res.json()).filter((r) => !r.draft);
+        localStorage.setItem(
+            NEWS_CACHE_KEY,
+            JSON.stringify({ timestamp: Date.now(), releases }),
+        );
+        return releases;
+    }
+
+    renderNews(list, releases) {
+        if (!releases || releases.length === 0) {
+            list.innerHTML =
+                '<div class="news-empty">Aucune nouveauté pour le moment.</div>';
+            return;
+        }
+
+        list.innerHTML = "";
+        for (let release of releases) {
+            let card = document.createElement("div");
+            card.classList.add("news-card");
+
+            let date = new Date(release.published_at).toLocaleDateString(
+                "fr-FR",
+                { day: "numeric", month: "long", year: "numeric" },
+            );
+            let body = (release.body || "Aucune note de version fournie.")
+                .replace(/^#+\s*/gm, "")
+                .replace(/[*_`]/g, "")
+                .trim();
+
+            card.innerHTML = `
+                <div class="news-card-title"></div>
+                <div class="news-card-date"></div>
+                <div class="news-card-body"></div>
+            `;
+            card.querySelector(".news-card-title").textContent =
+                release.name || release.tag_name;
+            card.querySelector(".news-card-date").textContent = date;
+            card.querySelector(".news-card-body").textContent = body;
+
+            card.addEventListener("click", () =>
+                shell.openExternal(release.html_url),
+            );
+            list.appendChild(card);
+        }
     }
 
     async instancesSelect() {
