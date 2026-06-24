@@ -1203,15 +1203,21 @@ class Settings {
                     if (error || !uploadInfo)
                         throw new Error(await this.describeFunctionError(error));
 
-                    // Windows n'associe aucun type MIME aux .jar : file.type
-                    // est vide, donc on force explicitement le content-type
-                    // plutôt que de laisser uploadToSignedUrl deviner.
+                    // On envoie le buffer déjà lu plus haut, pas l'objet
+                    // File : entre le calcul du sha1 et l'upload, plusieurs
+                    // appels réseau (refresh du token, requête à l'Edge
+                    // Function) prennent du temps, et relire le File après
+                    // ce délai échoue avec "could not be read... after a
+                    // reference to a file was acquired" (référence invalidée
+                    // par Electron/Chromium). Le buffer, lui, ne périme pas.
+                    // Windows n'associe par ailleurs aucun type MIME aux
+                    // .jar (file.type est vide), donc on force le content-type.
                     let { error: uploadError } = await supabase.storage
                         .from("modpacks")
                         .uploadToSignedUrl(
                             uploadInfo.path,
                             uploadInfo.token,
-                            file,
+                            buffer,
                             { contentType: "application/java-archive" },
                         );
                     if (uploadError) throw uploadError;
