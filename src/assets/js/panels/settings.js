@@ -1261,8 +1261,13 @@ class Settings {
 
         dropzone.addEventListener("click", () => fileInput.click());
         fileInput.addEventListener("change", () => {
-            stageFiles(fileInput.files);
+            // fileInput.files est une FileList "live" : si on vide
+            // l'input avant que la boucle async de stageFiles ait fini de
+            // la lire, elle se retrouve vide et la boucle ne traite rien
+            // (silencieusement). On la copie d'abord dans un tableau figé.
+            let selected = Array.from(fileInput.files);
             fileInput.value = "";
+            stageFiles(selected);
         });
         dropzone.addEventListener("dragover", (e) => {
             e.preventDefault();
@@ -1274,7 +1279,9 @@ class Settings {
         dropzone.addEventListener("drop", (e) => {
             e.preventDefault();
             dropzone.classList.remove("drag-over");
-            stageFiles(e.dataTransfer.files);
+            // Même précaution que pour l'input : on fige la liste avant
+            // que l'événement de drop ne soit recyclé par le navigateur.
+            stageFiles(Array.from(e.dataTransfer.files));
         });
 
         publishBtn.addEventListener("click", async () => {
