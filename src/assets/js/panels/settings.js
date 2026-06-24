@@ -10,7 +10,7 @@ import {
 } from "../utils.js";
 import { skin2D } from "../utils/skin.js";
 import supabase from "../utils/supabase.js";
-const { ipcRenderer, shell } = require("electron");
+const { ipcRenderer, shell, webUtils } = require("electron");
 const { Microsoft } = require("minecraft-java-core");
 const os = require("os");
 const fs = require("fs");
@@ -1185,7 +1185,13 @@ class Settings {
                 uploadStatusEl.textContent = `Envoi de ${file.name}...`;
                 let buffer;
                 try {
-                    buffer = Buffer.from(await file.arrayBuffer());
+                    // file.arrayBuffer() est peu fiable en Electron avec
+                    // nodeIntegration activé (bug connu : "could not be
+                    // read... after a reference to a file was acquired").
+                    // On passe par le chemin disque + fs, qui ne dépend pas
+                    // du Blob du navigateur.
+                    let filePath = webUtils.getPathForFile(file);
+                    buffer = fs.readFileSync(filePath);
                 } catch (err) {
                     console.error(`Lecture initiale de ${file.name} échouée :`, err);
                     uploadStatusEl.textContent = `Impossible de lire ${file.name} (étape lecture) : ${err.message || err}`;
