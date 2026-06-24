@@ -1,0 +1,25 @@
+name: ✨ Proposer une fonctionnalité
+description: Suggérer une amélioration ou une nouvelle fonctionnalité pour Nebula Launcher
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème ou besoin
+      description: Quel est le problème que cette fonctionnalité résoudrait, ou le besoin auquel elle répondrait ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+      description: Comment imagines-tu que ça devrait fonctionner ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+      description: As-tu pensé à d'autres approches ?

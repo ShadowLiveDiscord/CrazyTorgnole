@@ -1,0 +1,48 @@
+name: 🐛 Signaler un bug
+description: Quelque chose ne fonctionne pas comme attendu dans Nebula Launcher
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      description: Que se passe-t-il ? Que devrait-il se passer à la place ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      description: Comment provoquer le bug, étape par étape ?
+      placeholder: |
+        1. Lancer le launcher
+        2. Aller dans Paramètres > Comptes
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version de Nebula Launcher
+      description: Visible en bas à gauche du launcher (ex. v1.0.25)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Système d'exploitation
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / captures d'écran
+      description: Colle ici toute info utile (logs, capture d'écran, message d'erreur)
