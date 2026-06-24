@@ -7,8 +7,9 @@ Bot Discord qui surveille les releases GitHub de `ShadowLiveDiscord/CrazyTorgnol
 - **Annonce automatique** : poste un embed avec les notes de version dans le canal configuré dès qu'une nouvelle release (non-draft) est détectée
 - **Commande `/version`** : affiche à la demande la dernière version disponible
 - **Commande `/patch_note [version]`** : affiche les notes de version d'une release précise (ex: `1.0.24`), ou de la dernière si aucun numéro n'est donné
-- **Statut Discord** : le bot affiche "regarde la version x.x.x" en présence, mis à jour à chaque vérification
+- **Statut Discord** : le bot affiche "regarde la version x.x.x" en présence, mis à jour à chaque vérification. Après 3 échecs consécutifs de la veille (API GitHub inaccessible, salon supprimé...), le statut passe en "ne pas déranger" avec l'activité "regarde un problème de veille ⚠️" — visible dans la liste des membres sans avoir besoin des logs de l'hébergeur
 - **Mention de rôle** (optionnelle) : ping un rôle en plus de l'embed lors d'une nouvelle annonce
+- **Résistant aux redéploiements** : si `state.json` est perdu (filesystem remis à zéro par l'hébergeur), le bot retrouve la dernière version déjà annoncée en relisant ses propres embeds dans le salon, pour éviter de réannoncer une version déjà connue
 
 ## Configuration
 
@@ -21,9 +22,12 @@ GITHUB_OWNER=ShadowLiveDiscord
 GITHUB_REPO=CrazyTorgnole
 POLL_INTERVAL_MS=300000
 ANNOUNCE_ROLE_ID=
+GITHUB_TOKEN=
 ```
 
 `ANNOUNCE_ROLE_ID` est optionnel : laisse-le vide pour ne ping personne, ou mets l'ID d'un rôle (ex. `@MAJ`) pour qu'il soit mentionné à chaque nouvelle annonce.
+
+`GITHUB_TOKEN` est optionnel : sans lui, les appels à l'API GitHub sont limités à 60/heure **par IP**, partagés avec le reste du trafic sortant de l'hébergeur. Un classic PAT avec le seul scope `public_repo` (ou un fine-grained token en lecture "Contents" sur ce repo) suffit et fait passer la limite à 5000/heure.
 
 Les commandes `/version` et `/patch_note` sont enregistrées automatiquement sur le serveur du canal configuré au démarrage du bot (pas besoin de les déclarer ailleurs).
 
@@ -52,6 +56,6 @@ pm2 start index.js --name nebula-patchnotes
 Le fichier `discloud.config` est prêt pour un déploiement sur [Discloud](https://discloud.app).
 
 1. Installe l'extension/CLI Discloud (ou utilise le bot Discloud officiel pour uploader).
-2. **Ne mets pas le token dans `.env` avant l'upload** : `.discloudignore` exclut `.env` et `node_modules` du paquet envoyé. Configure plutôt les variables d'environnement (`DISCORD_BOT_TOKEN`, `CHANNEL_ID`, `GITHUB_OWNER`, `GITHUB_REPO`, `POLL_INTERVAL_MS`) via le panneau Discloud (commande `/env` ou dashboard web) après le premier déploiement.
+2. **Ne mets pas le token dans `.env` avant l'upload** : `.discloudignore` exclut `.env` et `node_modules` du paquet envoyé. Configure plutôt les variables d'environnement (`DISCORD_BOT_TOKEN`, `CHANNEL_ID`, `GITHUB_OWNER`, `GITHUB_REPO`, `POLL_INTERVAL_MS`, `GITHUB_TOKEN` optionnel) via le panneau Discloud (commande `/env` ou dashboard web) après le premier déploiement.
 3. Compresse le dossier `discord-bot/` (sans `node_modules`, `.env`, `state.json`) et upload-le, ou utilise la commande `discloud commands upload` si tu as la CLI configurée.
 4. Remplis `ID` dans `discloud.config` avec l'ID renvoyé par Discloud après le premier déploiement, pour les mises à jour suivantes.
