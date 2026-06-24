@@ -19,6 +19,10 @@ const { shell, ipcRenderer } = require("electron");
 const MAX_ACCOUNTS = 3;
 const NEWS_CACHE_KEY = "nebula_news_cache";
 const NEWS_CACHE_TTL_MS = 15 * 60 * 1000;
+// En dur : electron-builder retire le champ "build" du package.json embarqué
+// dans l'app packagée, donc pkg.build.publish n'existe plus une fois installé.
+const NEWS_REPO_OWNER = "ShadowLiveDiscord";
+const NEWS_REPO_NAME = "CrazyTorgnole";
 
 // Toujours protégés de la suppression au "verify", quelle que soit la config
 // de l'instance : sans ça, minecraft-java-core efface tout fichier du dossier
@@ -196,12 +200,8 @@ class Home {
             /* cache absent ou corrompu, on retombe sur le réseau */
         }
 
-        let owner = pkg.build?.publish?.owner;
-        let repo = pkg.build?.publish?.repo;
-        if (!owner || !repo) return [];
-
         let res = await fetch(
-            `https://api.github.com/repos/${owner}/${repo}/releases?per_page=5`,
+            `https://api.github.com/repos/${NEWS_REPO_OWNER}/${NEWS_REPO_NAME}/releases?per_page=5`,
             { headers: { Accept: "application/vnd.github+json" } },
         );
         if (!res.ok) throw new Error(`GitHub API ${res.status}`);
