@@ -38,11 +38,9 @@ class Home {
         this.db = new database();
         document.querySelector(".launcher-version").textContent =
             `v${pkg.version}`;
-        this.news();
         this.socialLick();
         this.instancesSelect();
         this.accountWidget();
-        this.newsDropdown();
         this.renderActiveVersion();
         window.addEventListener("home:refresh", () =>
             this.renderActiveVersion(),
@@ -79,22 +77,6 @@ class Home {
                 ? ` • ${active.loadder.loadder_type} ${active.loadder.loadder_version}`
                 : " • Vanilla"
         }`;
-    }
-
-    newsDropdown() {
-        let wrapper = document.querySelector(".news-dropdown-wrapper");
-        let btn = document.querySelector(".news-dropdown-btn");
-
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            wrapper.classList.toggle("show");
-        });
-
-        document.addEventListener("click", (e) => {
-            if (!wrapper.contains(e.target)) {
-                wrapper.classList.remove("show");
-            }
-        });
     }
 
     accountWidget() {
@@ -175,81 +157,6 @@ class Home {
             });
         }
         dropdown.appendChild(addBtn);
-    }
-
-    async news() {
-        let newsElement = document.querySelector(".news-list");
-        let news = await config
-            .getNews()
-            .then((res) => res)
-            .catch((err) => false);
-        if (news) {
-            if (!news.length) {
-                let blockNews = document.createElement("div");
-                blockNews.classList.add("news-block");
-                blockNews.innerHTML = `
-                    <div class="news-header">
-                        <img class="server-status-icon" src="assets/images/icon.png">
-                        <div class="header-text">
-                            <div class="title">Aucun news n'ai actuellement disponible.</div>
-                        </div>
-                        <div class="date">
-                            <div class="day">1</div>
-                            <div class="month">Janvier</div>
-                        </div>
-                    </div>
-                    <div class="news-content">
-                        <div class="bbWrapper">
-                            <p>Vous pourrez suivre ici toutes les news relative au serveur.</p>
-                        </div>
-                    </div>`;
-                newsElement.appendChild(blockNews);
-            } else {
-                for (let News of news) {
-                    let date = this.getdate(News.publish_date);
-                    let blockNews = document.createElement("div");
-                    blockNews.classList.add("news-block");
-                    blockNews.innerHTML = `
-                        <div class="news-header">
-                            <img class="server-status-icon" src="assets/images/icon.png">
-                            <div class="header-text">
-                                <div class="title">${News.title}</div>
-                            </div>
-                            <div class="date">
-                                <div class="day">${date.day}</div>
-                                <div class="month">${date.month}</div>
-                            </div>
-                        </div>
-                        <div class="news-content">
-                            <div class="bbWrapper">
-                                <p>${News.content.replace(/\n/g, "</br>")}</p>
-                                <p class="news-author">Auteur - <span>${News.author}</span></p>
-                            </div>
-                        </div>`;
-                    newsElement.appendChild(blockNews);
-                }
-            }
-        } else {
-            let blockNews = document.createElement("div");
-            blockNews.classList.add("news-block");
-            blockNews.innerHTML = `
-                <div class="news-header">
-                        <img class="server-status-icon" src="assets/images/icon.png">
-                        <div class="header-text">
-                            <div class="title">Error.</div>
-                        </div>
-                        <div class="date">
-                            <div class="day">1</div>
-                            <div class="month">Janvier</div>
-                        </div>
-                    </div>
-                    <div class="news-content">
-                        <div class="bbWrapper">
-                            <p>Impossible de contacter le serveur des news.</br>Merci de vérifier votre configuration.</p>
-                        </div>
-                    </div>`;
-            newsElement.appendChild(blockNews);
-        }
     }
 
     socialLick() {
@@ -475,7 +382,7 @@ class Home {
             return;
         }
 
-        const path = `${await appdata()}/.crazytorgnole`;
+        const path = `${await appdata()}/.nebulalauncher`;
         console.log(path + " appdata: " + (await appdata()));
 
         let opt = {
@@ -635,27 +542,6 @@ class Home {
         });
     }
 
-    getdate(e) {
-        let date = new Date(e);
-        let year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        let day = date.getDate();
-        let allMonth = [
-            "janvier",
-            "février",
-            "mars",
-            "avril",
-            "mai",
-            "juin",
-            "juillet",
-            "août",
-            "septembre",
-            "octobre",
-            "novembre",
-            "décembre",
-        ];
-        return { year: year, month: allMonth[month - 1], day: day };
-    }
 }
 
 export default Home;

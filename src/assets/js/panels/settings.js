@@ -222,7 +222,7 @@ class Settings {
 
     async javaPath() {
         let javaPathText = document.querySelector(".java-path-txt");
-        javaPathText.textContent = `${await appdata()}/${process.platform == "darwin" ? this.config.dataDirectory : `.${this.config.dataDirectory}`}/runtime`;
+        javaPathText.textContent = `${await appdata()}/${process.platform == "darwin" ? "nebulalauncher" : ".nebulalauncher"}/runtime`;
 
         let configClient = await this.db.readData("configClient");
         let javaPath =
@@ -594,7 +594,7 @@ class Settings {
                 loaderType !== "none"
                     ? `${loaderType}-${buildSelect.value}`
                     : "vanilla";
-            let instanceName = `CrazyTorgnole_${mcVersion}_${loaderLabel}`;
+            let instanceName = `Nebula_${mcVersion}_${loaderLabel}`;
 
             let instances = await config.getInstanceList();
             let baseInstance = instances.find((i) => !i.custom) || {};
@@ -666,7 +666,7 @@ class Settings {
     }
 
     async getModsPath(instanceName) {
-        let modsPath = `${await appdata()}/.crazytorgnole/instances/${instanceName}/mods`;
+        let modsPath = `${await appdata()}/.nebulalauncher/instances/${instanceName}/mods`;
         if (!fs.existsSync(modsPath)) fs.mkdirSync(modsPath, { recursive: true });
         return modsPath;
     }

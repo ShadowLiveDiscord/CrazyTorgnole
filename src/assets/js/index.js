@@ -8,7 +8,8 @@ class Splash {
         this.splashMessage = document.querySelector(".splash-message");
         this.splashAuthor = document.querySelector(".splash-author");
         this.message = document.querySelector(".message");
-        this.progress = document.querySelector(".progress");
+        this.progressLoader = document.querySelector(".progress-loader");
+        this.progress = document.querySelector(".progress-loader .progress");
         document.addEventListener("DOMContentLoaded", async () => {
             document.body.className = "dark global";
             if (process.platform === "win32")
@@ -113,21 +114,20 @@ class Splash {
     }
 
     togglePropgress() {
-        if (this.progress.classList.toggle("show")) this.setProgress(0, 1);
+        if (this.progressLoader.classList.toggle("show")) this.setProgress(0, 1);
     }
 
     setProgress(value = 0, max = 1) {
         value = Number(value);
         max = Number(max);
-    
+
         if (!isFinite(value) || !isFinite(max) || max <= 0) {
             console.warn("Progress non valide :", { value, max });
             return;
         }
-    
-        this.progress.value = value;
-        this.progress.max = max;
-    }    
+
+        this.progress.style.width = `${Math.min(100, (value / max) * 100)}%`;
+    }
 }
 
 document.addEventListener("keydown", (e) => {

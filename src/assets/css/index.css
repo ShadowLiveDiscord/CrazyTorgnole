@@ -123,10 +123,12 @@ body {
     opacity: 1;
 }
 
-.progress {
-    appearance: none;
+.progress-loader {
     width: 220px;
     height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
     transition: opacity 0.2s;
     opacity: 0;
 }
@@ -135,13 +137,10 @@ body {
     opacity: 1;
 }
 
-.progress::-webkit-progress-bar {
-    background-color: rgba(255, 255, 255, 0.1);
+.progress-loader .progress {
+    width: 0%;
+    height: 100%;
     border-radius: 10px;
-}
-
-.progress::-webkit-progress-value {
-    background: linear-gradient(90deg, #ff9645, #ff5c1a);
-    border-radius: 10px;
-    transition: width 0.2s ease;
+    background: linear-gradient(90deg, #7b2ff7, #c084fc);
+    transition: width 0.3s ease;
 }

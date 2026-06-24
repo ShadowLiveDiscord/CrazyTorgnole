@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CrazyTorgnole — Le launcher arrive bientôt</title>
+<title>Nebula Launcher — Le launcher arrive bientôt</title>
 <style>
   :root {
-    --orange: #f0883e;
+    --accent: #b266ff;
     --purple: #2d1b4e;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,7 +23,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: linear-gradient(180deg, #1a1030 0%, #2d1b4e 55%, #4a2a1a 100%);
+    background: linear-gradient(180deg, #0c0716 0%, #2d1b4e 55%, #190a2e 100%);
   }
   .bg {
     position: absolute;
@@ -52,7 +52,7 @@
     width: 220px;
     height: auto;
     border-radius: 20px;
-    box-shadow: 0 0 50px rgba(240,136,62,0.55), 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 0 50px rgba(178,102,255,0.55), 0 10px 30px rgba(0,0,0,0.5);
     margin-bottom: 12px;
     animation: float 3.5s ease-in-out infinite;
   }
@@ -65,8 +65,8 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     font-weight: 800;
-    text-shadow: 0 0 25px rgba(240,136,62,0.6), 0 4px 12px rgba(0,0,0,0.6);
-    background: linear-gradient(90deg, #ffd9a0, #f0883e);
+    text-shadow: 0 0 25px rgba(178,102,255,0.6), 0 4px 12px rgba(0,0,0,0.6);
+    background: linear-gradient(90deg, #e6c9ff, #b266ff);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -82,19 +82,19 @@
   .badge {
     margin-top: 36px;
     padding: 10px 26px;
-    border: 1px solid rgba(240,136,62,0.6);
+    border: 1px solid rgba(178,102,255,0.6);
     border-radius: 999px;
     font-size: 0.95rem;
     font-weight: 600;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--orange);
-    background: rgba(240,136,62,0.08);
+    color: var(--accent);
+    background: rgba(178,102,255,0.08);
     animation: pulse 2.2s ease-in-out infinite;
   }
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(240,136,62,0.4); }
-    50% { box-shadow: 0 0 0 10px rgba(240,136,62,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(178,102,255,0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(178,102,255,0); }
   }
   .countdown {
     margin-top: 30px;
@@ -132,7 +132,7 @@
     letter-spacing: 0.5px;
   }
   footer a {
-    color: var(--orange);
+    color: var(--accent);
     text-decoration: none;
   }
   .brand {
@@ -148,7 +148,7 @@
     width: 36px;
     height: 36px;
     border-radius: 9px;
-    box-shadow: 0 0 14px rgba(240,136,62,0.45);
+    box-shadow: 0 0 14px rgba(178,102,255,0.45);
   }
   .brand span {
     font-weight: 700;
@@ -164,11 +164,11 @@
   <div class="overlay"></div>
 
   <div class="brand">
-    <img src="assets/logo.png" alt="CrazyTorgnole">
+    <img src="assets/logo.png" alt="Nebula Launcher">
   </div>
 
   <div class="content">
-    <img class="icon" src="assets/logo.png" alt="CrazyTorgnole">
+    <img class="icon" src="assets/logo.png" alt="Nebula Launcher">
     <p class="subtitle">Le launcher Minecraft nouvelle génération arrive. Connexion Microsoft, gestion d'instances, mises à jour automatiques, tout est prêt.</p>
     <span class="badge">Bientôt disponible</span>
 

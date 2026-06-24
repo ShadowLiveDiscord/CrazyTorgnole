@@ -122,7 +122,7 @@ def build_background():
 
 
 # ---------------------------------------------------------------------------
-# Icône de l'application : canard sur un bloc (clin d'oeil à CrazyTorgnole)
+# Icône de l'application (ancienne version, remplacée par gen_icon_from_logo.py)
 # ---------------------------------------------------------------------------
 def build_icon():
     size = 1024
