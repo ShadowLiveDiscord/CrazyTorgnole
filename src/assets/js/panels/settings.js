@@ -1079,6 +1079,22 @@ class Settings {
         return refreshed.access_token;
     }
 
+    // supabase-js ne remonte pas le corps JSON d'une réponse d'Edge Function
+    // non-2xx dans error.message (juste "Edge Function returned a non-2xx
+    // status code") : le vrai message est dans error.context, une Response
+    // qu'il faut lire à part.
+    async describeFunctionError(error) {
+        try {
+            if (error?.context?.json) {
+                let body = await error.context.json();
+                if (body?.error) return body.error;
+            }
+        } catch {
+            /* corps non-JSON ou déjà consommé, on retombe sur error.message */
+        }
+        return error?.message || "Erreur inconnue.";
+    }
+
     async admin() {
         let navBtn = document.querySelector(".admin-nav-btn");
         let dropzone = document.querySelector(".admin-dropzone");
@@ -1185,9 +1201,7 @@ class Settings {
                             },
                         });
                     if (error || !uploadInfo)
-                        throw new Error(
-                            error?.message || "Échec de la demande d'upload.",
-                        );
+                        throw new Error(await this.describeFunctionError(error));
 
                     // Windows n'associe aucun type MIME aux .jar : file.type
                     // est vide, donc on force explicitement le content-type
@@ -1214,7 +1228,7 @@ class Settings {
                     renderMods();
                 } catch (err) {
                     console.error(`Échec de l'envoi de ${file.name} :`, err);
-                    uploadStatusEl.textContent = `Échec de l'envoi de ${file.name}.`;
+                    uploadStatusEl.textContent = `Échec de l'envoi de ${file.name} : ${err.message || err}`;
                     return;
                 }
             }
@@ -1263,13 +1277,13 @@ class Settings {
                     },
                 );
                 if (error || !data?.version)
-                    throw new Error(error?.message || "Échec de la publication.");
+                    throw new Error(await this.describeFunctionError(error));
 
                 publishStatusEl.textContent = `Publié en version ${data.version}.`;
                 await loadCurrentManifest();
             } catch (err) {
                 console.error("Échec de la publication du modpack :", err);
-                publishStatusEl.textContent = "Échec de la publication.";
+                publishStatusEl.textContent = `Échec de la publication : ${err.message || err}`;
             } finally {
                 publishBtn.classList.remove("disabled");
             }
