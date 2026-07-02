@@ -203,7 +203,7 @@ section.main-ctn {
 }
 
 .popup-button {
-    background: linear-gradient(180deg, #a866ff, #7b2ff7);
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
     color: #fff;
     border: none;
     border-radius: 10px;

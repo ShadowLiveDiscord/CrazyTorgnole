@@ -32,6 +32,7 @@ class Launcher {
         if (await this.config.error) return this.errorConnect();
         this.db = new database();
         await this.initConfigClient();
+        this.applyTheme();
         this.createPanels(Login, Home, Settings);
         this.startLauncher();
     }
@@ -94,6 +95,14 @@ class Launcher {
             .addEventListener("click", () => {
                 ipcRenderer.send("main-window-close");
             });
+    }
+
+    async applyTheme() {
+        let configClient = await this.db.readData("configClient");
+        let theme = configClient?.theme || "theme-violet";
+        let themes = ["theme-violet", "theme-blue", "theme-red", "theme-green", "theme-orange"];
+        themes.forEach((t) => document.body.classList.remove(t));
+        document.body.classList.add(theme);
     }
 
     async initConfigClient() {

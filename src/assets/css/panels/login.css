@@ -36,7 +36,7 @@
 }
 
 .login-title .accent {
-    color: #7b2ff7;
+    color: var(--accent-primary);
 }
 
 .login-subtitle {

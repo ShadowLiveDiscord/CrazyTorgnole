@@ -31,6 +31,7 @@ class Settings {
         this.launcher();
         this.mcVersion();
         this.modsManager();
+        this.theme();
         this.admin();
     }
 
@@ -1098,6 +1099,33 @@ class Settings {
             /* corps non-JSON ou déjà consommé, on retombe sur error.message */
         }
         return error?.message || "Erreur inconnue.";
+    }
+
+    async theme() {
+        let configClient = await this.db.readData("configClient");
+        let currentTheme = configClient?.theme || "theme-violet";
+
+        let applyTheme = (themeName) => {
+            let themes = ["theme-violet", "theme-blue", "theme-red", "theme-green", "theme-orange"];
+            themes.forEach((t) => document.body.classList.remove(t));
+            document.body.classList.add(themeName);
+
+            document.querySelectorAll(".theme-swatch").forEach((swatch) => {
+                swatch.classList.toggle("active", swatch.dataset.theme === themeName);
+            });
+        };
+
+        applyTheme(currentTheme);
+
+        document.querySelectorAll(".theme-swatch").forEach((swatch) => {
+            swatch.addEventListener("click", async () => {
+                let chosen = swatch.dataset.theme;
+                applyTheme(chosen);
+                let cfg = await this.db.readData("configClient");
+                cfg.theme = chosen;
+                await this.db.updateData("configClient", cfg);
+            });
+        });
     }
 
     async admin() {

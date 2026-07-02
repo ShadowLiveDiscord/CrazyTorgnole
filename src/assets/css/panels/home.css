@@ -314,8 +314,8 @@
 }
 
 .account-dot.active {
-    background: #7b2ff7;
-    box-shadow: 0 0 6px rgba(123, 47, 247, 0.6);
+    background: var(--accent-primary);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
 }
 
 .account-dropdown-divider {
@@ -326,7 +326,7 @@
 
 .account-dropdown-add {
     padding: 0.55rem 0.6rem;
-    color: #7b2ff7;
+    color: var(--accent-primary);
     font-size: 0.85rem;
     font-weight: 700;
     border-radius: 10px;
@@ -455,8 +455,8 @@
     gap: 0.5rem;
     border: none;
     border-radius: 50px;
-    background: linear-gradient(180deg, #a866ff, #7b2ff7);
-    box-shadow: 0 6px 18px rgba(123, 47, 247, 0.45);
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
     color: #fff;
     font-size: 1rem;
     font-weight: 800;
@@ -507,7 +507,7 @@
 }
 
 .progress-bar::-webkit-progress-value {
-    background: linear-gradient(90deg, #7b2ff7, #c084fc);
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-light));
     border-radius: 10px;
     transition: width 0.2s ease;
 }
@@ -604,7 +604,7 @@
 }
 
 .active-instance {
-    border-color: #7b2ff7;
-    box-shadow: 0 0 0 1px rgba(123, 47, 247, 0.35) inset;
-    color: #a866ff;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
+    color: var(--accent-secondary);
 }

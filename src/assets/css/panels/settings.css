@@ -62,13 +62,13 @@
 }
 
 .active-settings-BTN {
-    background: linear-gradient(180deg, #a866ff, #7b2ff7);
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
     color: #fff;
-    box-shadow: 0 6px 18px rgba(123, 47, 247, 0.35);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
 .active-settings-BTN:hover {
-    background: linear-gradient(180deg, #a866ff, #7b2ff7);
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
     color: #fff;
 }
 
@@ -166,8 +166,8 @@
 }
 
 .account-select {
-    border: 1px solid #7b2ff7;
-    box-shadow: 0 0 0 1px rgba(123, 47, 247, 0.35) inset;
+    border: 1px solid var(--accent-primary);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35) inset;
 }
 
 .accounts-list #add {
@@ -179,7 +179,7 @@
     width: 64px;
     height: 64px;
     font-size: 1.6rem;
-    color: #7b2ff7;
+    color: var(--accent-primary);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -403,12 +403,12 @@
 }
 
 .skin-apply-btn {
-    background: linear-gradient(180deg, #a866ff, #7b2ff7);
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
     color: #fff;
 }
 
 .skin-apply-btn:hover {
-    box-shadow: 0 4px 14px rgba(123, 47, 247, 0.45);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
 .skin-apply-btn:disabled {
@@ -491,7 +491,7 @@
     display: block;
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #a866ff, #7b2ff7);
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
     transition: background-color 0.2s;
 }
 
@@ -545,7 +545,7 @@
 }
 
 .mc-instance-row.active {
-    box-shadow: 0 0 0 2px #7b2ff7;
+    box-shadow: 0 0 0 2px var(--accent-primary);
 }
 
 .mc-instance-row-name {
@@ -591,12 +591,12 @@
 
 .mods-search-input:focus {
     outline: none;
-    border-color: rgba(123, 47, 247, 0.5);
+    border-color: color-mix(in srgb, var(--accent-primary) 50%, transparent);
 }
 
 .mods-instance-info {
     text-align: center;
-    color: #a866ff;
+    color: var(--accent-secondary);
     font-weight: 700;
     font-size: 0.8rem;
 }
@@ -734,7 +734,7 @@
 .fullscreen-toggle input {
     width: 16px;
     height: 16px;
-    accent-color: #7b2ff7;
+    accent-color: var(--accent-primary);
     cursor: pointer;
 }
 
@@ -784,8 +784,8 @@
 }
 
 .active-close {
-    box-shadow: 0 0 0 2px #7b2ff7;
-    background: rgba(123, 47, 247, 0.08);
+    box-shadow: 0 0 0 2px var(--accent-primary);
+    background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
 }
 
 .admin-dropzone {
@@ -870,11 +870,58 @@
 }
 
 .admin-publish-btn {
-    background: linear-gradient(180deg, #a866ff, #7b2ff7);
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
     color: #fff;
 }
 
 .admin-publish-status {
     font-size: 0.8rem;
     color: var(--element-color);
+}
+
+/* ===== Thèmes ===== */
+
+.theme-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.theme-swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.theme-swatch-color {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    transition: var(--transition);
+}
+
+.theme-swatch:hover .theme-swatch-color {
+    transform: scale(1.1);
+}
+
+.theme-swatch.active .theme-swatch-color {
+    border-color: var(--color);
+    box-shadow: 0 0 0 3px var(--accent-primary);
+}
+
+.theme-swatch-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--element-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.theme-swatch.active .theme-swatch-name {
+    color: var(--color);
 }
