@@ -869,12 +869,327 @@
     margin-top: 1.2rem;
 }
 
+.admin-version-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--color-text);
+    white-space: nowrap;
+}
+
+.admin-version-input {
+    width: 70px;
+    padding: 0.3rem 0.5rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--color-text);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.admin-version-input:focus {
+    outline: none;
+    border-color: var(--color);
+}
+
 .admin-publish-btn {
     background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
     color: #fff;
 }
 
 .admin-publish-status {
+    font-size: 0.8rem;
+    color: var(--element-color);
+}
+
+/* ===== Historique modpack ===== */
+
+.admin-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+.admin-history-loading {
+    font-size: 0.8rem;
+    color: var(--element-color);
+    font-style: italic;
+}
+
+.admin-history-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.8rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    gap: 1rem;
+}
+
+.admin-history-entry.admin-history-current {
+    border-color: var(--color);
+    background: color-mix(in srgb, var(--color) 8%, var(--bg2));
+}
+
+.admin-history-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.admin-history-ver {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color);
+    white-space: nowrap;
+}
+
+.admin-history-meta {
+    font-size: 0.78rem;
+    color: var(--element-color);
+    white-space: nowrap;
+}
+
+.admin-history-author {
+    font-size: 0.75rem;
+    color: var(--element-color);
+    opacity: 0.7;
+}
+
+.admin-history-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color);
+    border: 1px solid var(--color);
+    border-radius: 4px;
+    padding: 0.1rem 0.45rem;
+    white-space: nowrap;
+}
+
+.admin-history-rollback-btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.7rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.admin-rollback-status {
+    font-size: 0.8rem;
+    color: var(--element-color);
+    margin-top: 0.5rem;
+}
+
+/* ===== MOTD Admin ===== */
+
+/* ===== Profile picker ===== */
+
+.profile-picker-row {
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.6rem;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    transition: all 0.15s;
+    width: 140px;
+}
+
+.profile-card:hover {
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.06);
+}
+
+.profile-card.profile-selected {
+    border-color: var(--accent-primary);
+    background: rgba(123, 47, 247, 0.08);
+}
+
+.profile-card-preview {
+    width: 120px;
+    height: 75px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0c0a14;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Nebula mockup: top navbar */
+.nebula-preview {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-card-mockup-navbar {
+    height: 10px;
+    background: rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex: none;
+}
+
+.nebula-preview .profile-card-mockup-body {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+}
+
+.profile-card-mockup-sidebar-right {
+    width: 35px;
+    height: 100%;
+    background: rgba(123, 47, 247, 0.15);
+    border-left: 1px solid rgba(123, 47, 247, 0.25);
+}
+
+/* TerraNova mockup: left sidebar + banner + right panel */
+.terranova-preview {
+    display: flex;
+    flex-direction: row;
+}
+
+.profile-card-mockup-sidebar-left {
+    width: 28px;
+    height: 100%;
+    background: rgba(10,14,20,0.95);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    flex: none;
+}
+
+.profile-card-mockup-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-card-mockup-banner {
+    height: 30px;
+    background: linear-gradient(180deg, rgba(34,197,94,0.15), rgba(0,0,0,0.4));
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex: none;
+}
+
+.profile-card-mockup-content {
+    flex: 1;
+    background: rgba(10,14,20,0.5);
+}
+
+.profile-card-mockup-right {
+    width: 28px;
+    height: 100%;
+    background: rgba(10,14,20,0.9);
+    border-left: 1px solid rgba(255,255,255,0.06);
+    flex: none;
+}
+
+.profile-card-name {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--color);
+}
+
+.profile-card-desc {
+    font-size: 0.65rem;
+    color: var(--element-color);
+    text-align: center;
+}
+
+.profile-save-status {
+    font-size: 0.8rem;
+    color: var(--element-color);
+}
+
+.maintenance-admin-row {
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.maintenance-msg-input {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: var(--color);
+    font-size: 0.85rem;
+    padding: 0.45rem 0.75rem;
+    outline: none;
+    transition: var(--transition);
+}
+
+.maintenance-msg-input:focus {
+    border-color: var(--accent-primary);
+}
+
+.maintenance-save-btn {
+    background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+    color: #fff;
+    font-weight: 800;
+    border-radius: 10px;
+    padding: 0.45rem 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.maintenance-save-btn:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.maintenance-save-status {
+    font-size: 0.8rem;
+    color: var(--element-color);
+}
+
+.motd-admin-row {
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.motd-text-input {
+    flex: 1;
+    min-width: 180px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: var(--color);
+    font-size: 0.85rem;
+    padding: 0.45rem 0.75rem;
+    outline: none;
+    transition: var(--transition);
+}
+
+.motd-text-input:focus {
+    border-color: var(--accent-primary);
+}
+
+.motd-color-input {
+    width: 2.4rem;
+    height: 2.4rem;
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    flex: none;
+}
+
+.motd-save-status {
     font-size: 0.8rem;
     color: var(--element-color);
 }

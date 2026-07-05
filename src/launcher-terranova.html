@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraNova Launcher</title>
+    <link rel="stylesheet" href="assets/include/css/app.css">
+    <link rel="stylesheet" href="assets/css/launcher-terranova.css">
+</head>
+<body class="dark global theme-green">
+
+    <!-- Window controls (floating top-right, IDs attendus par initFrame) -->
+    <div class="tn-win-controls">
+        <button class="tn-btn button-frame" id="minimize">&#8722;</button>
+        <button class="tn-btn button-frame" id="maximize">&#9633;</button>
+        <button class="tn-btn button-frame tn-close" id="close">&#10005;</button>
+    </div>
+
+    <!-- Global popup overlay (utilisé par utils.js popup()) -->
+    <div class="popup">
+        <div class="popup-tab">
+            <div class="popup-title"></div>
+            <div class="popup-content"></div>
+            <div class="popup-options">
+                <button class="popup-button">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout principal -->
+    <div class="tn-layout">
+
+        <!-- ══ SIDEBAR GAUCHE ══ -->
+        <aside class="tn-sidebar sidebar">
+
+            <!-- Logo + Titre -->
+            <div class="sidebar-brand tn-brand">
+                <img class="tn-logo brand-logo" src="assets/images/terranova/logo.png" alt="TerraNova">
+                <div class="tn-brand-text">
+                    <div class="tn-server-title">TERRANOVA</div>
+                    <div class="tn-launcher-sub brand-sub">LAUNCHER</div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav tn-nav">
+                <!-- MON INSTANCE : nav-item active + tn-nav-item tn-nav-active -->
+                <div class="nav-item tn-nav-item tn-nav-active active" data-panel="home">
+                    <i class="fa-solid fa-play nav-icon"></i>
+                    MON INSTANCE
+                </div>
+                <!-- PARAMÈTRES : doit avoir classe settings-btn (home.js y attache un listener) -->
+                <div class="nav-item tn-nav-item settings-btn" data-panel="settings">
+                    <i class="fa-solid fa-gear nav-icon"></i>
+                    PARAMÈTRES
+                </div>
+                <!-- COMPTE : ouvre settings sur l'onglet account -->
+                <div class="nav-item tn-nav-item" data-panel="settings" data-tab="account">
+                    <i class="fa-solid fa-user nav-icon"></i>
+                    COMPTE
+                </div>
+            </nav>
+
+            <!-- Rendu 3D du joueur (Crafatar body render) -->
+            <div class="tn-player-char" id="tn-player-char">
+                <img id="tn-body-render" class="tn-body-render" src="" alt="" style="display:none;">
+            </div>
+
+            <!-- Bloc bas sidebar : flex:none pour ne pas être écrasé par sidebar-nav flex:1 -->
+            <div class="sidebar-bottom">
+
+                <!-- account-widget : utilisé par home.js pour le dropdown -->
+                <div class="sidebar-account account-widget" style="cursor:pointer">
+                    <div class="sidebar-avatar-wrap">
+                        <!-- Letter en z-index bas (visible par défaut) -->
+                        <div class="sidebar-avatar-letter" id="sidebar-avatar-letter">N</div>
+                        <!-- Skin div en z-index haut (couvre la lettre quand backgroundImage chargé) -->
+                        <div class="player-head" id="sidebar-avatar-skin"></div>
+                    </div>
+                    <div class="account-details account-widget-infos">
+                        <span class="acc-name account-widget-name" id="sidebar-username">Steve</span>
+                        <span class="acc-status account-widget-status">
+                            <span class="dot-online"></span> ONLINE
+                        </span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down account-widget-chevron"></i>
+                </div>
+
+                <!-- Dropdown comptes (rempli par home.js) -->
+                <div class="account-dropdown"></div>
+
+                <!-- Icônes sociales -->
+                <div class="sidebar-footer-icons">
+                    <button class="footer-icon social-block" data-url="https://discord.gg/terranova" title="Discord">
+                        <i class="fa-brands fa-discord"></i>
+                    </button>
+                    <button class="footer-icon social-block" data-url="https://terranova.fr" title="Site web">
+                        <i class="fa-solid fa-globe"></i>
+                    </button>
+                </div>
+
+                <!-- Version launcher -->
+                <div class="sidebar-version launcher-version">v—</div>
+
+            </div><!-- /.sidebar-bottom -->
+
+        </aside>
+
+        <!-- ══ CONTENU PRINCIPAL (panels Nebula) ══ -->
+        <div class="tn-content main-area">
+            <!-- Les panels home, settings, login sont injectés ici par createPanels() -->
+            <div class="panels"></div>
+        </div>
+
+    </div>
+
+    <script src="assets/js/launcher-terranova.js" type="module"></script>
+</body>
+</html>

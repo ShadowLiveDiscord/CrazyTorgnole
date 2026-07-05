@@ -5,6 +5,11 @@ const { autoUpdater } = require("electron-updater");
 const path = require("path");
 const fs = require("fs");
 
+const LAUNCHER_FILES = {
+    nebula: "src/launcher.html",
+    terranova: "src/launcher-terranova.html",
+};
+
 const UpdateWindow = require("./assets/js/windows/updateWindow.js");
 const MainWindow = require("./assets/js/windows/mainWindow.js");
 
@@ -81,6 +86,29 @@ ipcMain.handle("is-dev", (_e) => dev);
 ipcMain.handle("get-screen-size", (_e) =>
     screen.getPrimaryDisplay().workAreaSize,
 );
+
+ipcMain.handle("get-active-profile", (_e) => {
+    try {
+        let profilePath = path.join(app.getPath("userData"), "nebula-active-profile.json");
+        if (fs.existsSync(profilePath))
+            return JSON.parse(fs.readFileSync(profilePath, "utf-8")).profile || "nebula";
+    } catch {}
+    return "nebula";
+});
+
+ipcMain.on("set-active-profile", (_e, profile) => {
+    try {
+        let profilePath = path.join(app.getPath("userData"), "nebula-active-profile.json");
+        fs.writeFileSync(profilePath, JSON.stringify({ profile }), "utf-8");
+        let win = MainWindow.getWindow();
+        if (win) {
+            let file = LAUNCHER_FILES[profile] || LAUNCHER_FILES.nebula;
+            win.loadFile(path.join(app.getAppPath(), file));
+        }
+    } catch (err) {
+        console.error("set-active-profile error:", err);
+    }
+});
 
 ipcMain.on("main-window-maximize", () => {
     if (MainWindow.getWindow().isMaximized()) {

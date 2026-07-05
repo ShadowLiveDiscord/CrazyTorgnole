@@ -138,6 +138,12 @@
                     Lancer le jeu en plein écran
                 </label>
             </div>
+            <div class="settings-elements content-center">
+                <label class="fullscreen-toggle">
+                    <input type="checkbox" class="borderless-checkbox">
+                    Fenêtré sans bordure (borderless)
+                </label>
+            </div>
         </div>
     </div>
 
@@ -265,7 +271,7 @@
     </div>
 
     <div id="admin-tab" class="container-settings content-scroll">
-        <div class="titre-tab">Administration du modpack</div>
+        <div class="titre-tab">Administration du modpack — <span class="admin-instance-label">Nebula</span></div>
         <div class="settings-elements-box">
             <div class="setting-text">
                 Les mods publiés ici sont distribués à tous les joueurs sur l'instance verrouillée. Quand tu publies, un bouton "Mettre à jour" apparaît dans leur launcher.
@@ -283,7 +289,126 @@
 
             <div class="admin-publish-row">
                 <div class="admin-publish-btn size-btn">Publier</div>
+                <label class="admin-version-label">
+                    Version :
+                    <input type="number" class="admin-version-input" min="1" step="1" placeholder="auto">
+                </label>
                 <div class="admin-publish-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Historique des versions</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Versions publiées précédemment. Clique sur "Restaurer" pour remettre une ancienne version en ligne sans re-uploader les fichiers.
+            </div>
+            <div class="admin-history-list">
+                <div class="admin-history-loading">Chargement...</div>
+            </div>
+            <div class="admin-rollback-status"></div>
+        </div>
+
+        <div class="titre-tab">Instance Nebula — Loader</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Change la version de Minecraft et le mod loader utilisés par l'instance Nebula. Appliqué pour tous les joueurs au prochain démarrage du launcher.
+            </div>
+            <div class="settings-elements content-evenly admin-loader-row">
+                <div class="settings-element">
+                    <div class="settings-element-text">Version Minecraft</div>
+                    <input type="text" class="admin-loader-mc-version" placeholder="ex: 1.21.1">
+                </div>
+                <div class="settings-element">
+                    <div class="settings-element-text">Loader</div>
+                    <select class="admin-loader-type">
+                        <option value="none">Vanilla</option>
+                        <option value="forge">Forge</option>
+                        <option value="neoforge">NeoForge</option>
+                        <option value="fabric">Fabric</option>
+                        <option value="legacyfabric">LegacyFabric</option>
+                        <option value="quilt">Quilt</option>
+                    </select>
+                </div>
+                <div class="settings-element">
+                    <div class="settings-element-text">Version du loader</div>
+                    <input type="text" class="admin-loader-version" placeholder="ex: 21.1.130">
+                </div>
+            </div>
+            <div class="settings-elements content-evenly">
+                <div class="admin-loader-save-btn size-btn">Appliquer</div>
+                <div class="admin-loader-save-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Profil du launcher</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Choisissez l'apparence du launcher. Le changement est appliqué immédiatement et sauvegardé pour tous les joueurs au prochain démarrage.
+            </div>
+            <div class="settings-elements content-center profile-picker-row">
+                <div class="profile-card" data-profile="nebula">
+                    <div class="profile-card-preview nebula-preview">
+                        <div class="profile-card-mockup-navbar"></div>
+                        <div class="profile-card-mockup-body">
+                            <div class="profile-card-mockup-sidebar-right"></div>
+                        </div>
+                    </div>
+                    <div class="profile-card-name">Nebula</div>
+                    <div class="profile-card-desc">Barre du haut · sidebar droite</div>
+                </div>
+                <div class="profile-card" data-profile="terranova">
+                    <div class="profile-card-preview terranova-preview">
+                        <div class="profile-card-mockup-sidebar-left"></div>
+                        <div class="profile-card-mockup-main">
+                            <div class="profile-card-mockup-banner"></div>
+                            <div class="profile-card-mockup-content"></div>
+                        </div>
+                        <div class="profile-card-mockup-right"></div>
+                    </div>
+                    <div class="profile-card-name">TerraNova</div>
+                    <div class="profile-card-desc">Sidebar gauche · banner · statut droit</div>
+                </div>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="profile-apply-btn size-btn">Appliquer</div>
+                <div class="profile-save-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Mode maintenance</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Bloque le lancement du jeu pour tous les joueurs avec un message personnalisé. Le bouton Jouer est désactivé tant que la maintenance est active.
+            </div>
+            <div class="settings-elements content-center maintenance-admin-row">
+                <input type="text" class="maintenance-msg-input" placeholder="Message affiché aux joueurs...">
+                <label class="fullscreen-toggle">
+                    <input type="checkbox" class="maintenance-enabled-checkbox">
+                    Activé
+                </label>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="maintenance-save-btn size-btn">Enregistrer</div>
+                <div class="maintenance-save-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Mot du serveur (MOTD)</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Message affiché à tous les joueurs dans leur launcher. Activez-le, définissez le texte et la couleur, puis cliquez sur Enregistrer.
+            </div>
+            <div class="settings-elements content-center motd-admin-row">
+                <input type="text" class="motd-text-input" placeholder="Message du serveur...">
+                <input type="color" class="motd-color-input" value="#f97316" title="Couleur du texte">
+                <label class="fullscreen-toggle motd-enabled-label">
+                    <input type="checkbox" class="motd-enabled-checkbox">
+                    Activé
+                </label>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="motd-save-btn size-btn">Enregistrer le MOTD</div>
+                <div class="motd-save-status"></div>
             </div>
         </div>
     </div>

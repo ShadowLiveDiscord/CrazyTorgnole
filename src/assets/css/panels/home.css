@@ -158,6 +158,44 @@
     filter: var(--svg-color);
 }
 
+.info-top-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.info-top-row .launcher-version {
+    flex: none;
+}
+
+.info-top-row .active-version-label {
+    flex: none;
+}
+
+.motd-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.motd-bar {
+    width: 2px;
+    height: 0.8rem;
+    border-radius: 2px;
+    background: currentColor;
+    flex: none;
+}
+
+.motd-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+}
+
 .sidebar {
     display: flex;
     justify-content: space-between;
@@ -446,6 +484,18 @@
 
 .play-instance.disabled {
     opacity: 0.6;
+    pointer-events: none;
+}
+
+.play-instance.maintenance-blocked {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(0.6);
+}
+
+.play-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
     pointer-events: none;
 }
 

@@ -13,5 +13,20 @@
         "ignored": ["mods", "config", "resourcepacks", "shaderpacks", "saves", "screenshots", "logs", "crash-reports", "options.txt", "servers.dat"],
         "jvm_args": [],
         "modsLocked": true
+    },
+    ".terranova": {
+        "url": null,
+        "whitelistActive": false,
+        "whitelist": [],
+        "status": null,
+        "loadder": {
+            "minecraft_version": "1.21.1",
+            "loadder_type": "neoforge",
+            "loadder_version": "21.1.230"
+        },
+        "verify": true,
+        "ignored": ["mods", "config", "resourcepacks", "shaderpacks", "saves", "screenshots", "logs", "crash-reports", "options.txt", "servers.dat"],
+        "jvm_args": [],
+        "modsLocked": true
     }
 }

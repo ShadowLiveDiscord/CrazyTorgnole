@@ -502,6 +502,9 @@ class Settings {
         let fullscreenCheckbox = document.querySelector(
             ".fullscreen-checkbox",
         );
+        let borderlessCheckbox = document.querySelector(
+            ".borderless-checkbox",
+        );
         let presetButtons = document.querySelectorAll(
             ".resolution-preset-btn",
         );
@@ -509,27 +512,33 @@ class Settings {
         width.value = resolution.width;
         height.value = resolution.height;
         fullscreenCheckbox.checked = !!resolution.fullscreen;
+        borderlessCheckbox.checked = !!resolution.borderless;
 
-        let saveResolution = async (w, h, fullscreen) => {
+        let saveResolution = async (w, h, fullscreen, borderless) => {
             let configClient = await this.db.readData("configClient");
             configClient.game_config.screen_size = {
                 width: w,
                 height: h,
                 fullscreen: fullscreen,
+                borderless: borderless,
             };
             await this.db.updateData("configClient", configClient);
         };
 
         width.addEventListener("change", () =>
-            saveResolution(width.value, height.value, fullscreenCheckbox.checked),
+            saveResolution(width.value, height.value, fullscreenCheckbox.checked, borderlessCheckbox.checked),
         );
 
         height.addEventListener("change", () =>
-            saveResolution(width.value, height.value, fullscreenCheckbox.checked),
+            saveResolution(width.value, height.value, fullscreenCheckbox.checked, borderlessCheckbox.checked),
         );
 
         fullscreenCheckbox.addEventListener("change", () =>
-            saveResolution(width.value, height.value, fullscreenCheckbox.checked),
+            saveResolution(width.value, height.value, fullscreenCheckbox.checked, borderlessCheckbox.checked),
+        );
+
+        borderlessCheckbox.addEventListener("change", () =>
+            saveResolution(width.value, height.value, fullscreenCheckbox.checked, borderlessCheckbox.checked),
         );
 
         presetButtons.forEach((btn) => {
@@ -540,6 +549,7 @@ class Settings {
                     btn.dataset.w,
                     btn.dataset.h,
                     fullscreenCheckbox.checked,
+                    borderlessCheckbox.checked,
                 );
             });
         });
@@ -552,6 +562,7 @@ class Settings {
                 size.width,
                 size.height,
                 fullscreenCheckbox.checked,
+                borderlessCheckbox.checked,
             );
         });
 
@@ -559,7 +570,8 @@ class Settings {
             width.value = "854";
             height.value = "480";
             fullscreenCheckbox.checked = false;
-            await saveResolution("854", "480", false);
+            borderlessCheckbox.checked = false;
+            await saveResolution("854", "480", false, false);
         });
     }
 
@@ -1056,11 +1068,15 @@ class Settings {
         fs.writeFileSync(`${modsPath}/${file.filename}`, buffer);
     }
 
-    // L'instance verrouillée à administrer : celle marquée modsLocked dans
-    // files.json (une seule pour l'instant, "Nebula").
+    // Retourne l'instance modsLocked correspondant au profil actif.
+    // Nebula → "Nebula" · TerraNova → ".terranova"
     async getLockedInstance() {
         let instances = await config.getInstanceList();
-        return instances.find((i) => i.modsLocked);
+        let profile = "nebula";
+        try { profile = await ipcRenderer.invoke("get-active-profile") || "nebula"; } catch {}
+        let targetName = profile === "terranova" ? ".terranova" : "Nebula";
+        return instances.find(i => i.name === targetName && i.modsLocked)
+            || instances.find(i => i.modsLocked);
     }
 
     // L'identité admin est vérifiée côté serveur (Edge Function admin-modpack)
@@ -1076,13 +1092,15 @@ class Settings {
         let refreshed = await new Microsoft(this.config.client_id).refresh(
             account,
         );
-        if (refreshed.error) return null;
-        // Microsoft fait tourner le refresh_token à chaque utilisation : si
-        // on ne sauvegarde pas le résultat, l'appel suivant relit l'ancien
-        // refresh_token (déjà invalidé) depuis la base et échoue.
-        refreshed.ID = account.ID;
-        await this.db.updateData("accounts", refreshed, account.ID);
-        return refreshed.access_token;
+        if (!refreshed.error && refreshed.access_token) {
+            // Microsoft fait tourner le refresh_token à chaque utilisation
+            refreshed.ID = account.ID;
+            await this.db.updateData("accounts", refreshed, account.ID);
+            return refreshed.access_token;
+        }
+        // Refresh échoué : fallback sur le token stocké (peut encore être valide)
+        if (account.access_token) return account.access_token;
+        return null;
     }
 
     // supabase-js ne remonte pas le corps JSON d'une réponse d'Edge Function
@@ -1139,6 +1157,7 @@ class Settings {
 
         this.adminMods = [];
         this.adminAccessToken = null;
+        this.adminSession = null;
 
         let renderMods = () => {
             if (!this.adminMods.length) {
@@ -1167,6 +1186,79 @@ class Settings {
             });
         };
 
+        let versionInput = document.querySelector(".admin-version-input");
+        versionInput?.addEventListener("input", () => {
+            versionInput.dataset.userEdited = "1";
+        });
+
+        let historyListEl    = document.querySelector(".admin-history-list");
+        let rollbackStatusEl = document.querySelector(".admin-rollback-status");
+
+        let renderHistory = (history, currentVersion) => {
+            if (!historyListEl) return;
+            if (!history.length) {
+                historyListEl.innerHTML = "<div class='setting-text' style='font-style:italic'>Aucune version dans l'historique.</div>";
+                return;
+            }
+            historyListEl.innerHTML = history.map(entry => {
+                let date = new Date(entry.published_at).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+                let modCount = Array.isArray(entry.mods) ? entry.mods.length : 0;
+                let isCurrent = entry.version === currentVersion;
+                return `<div class="admin-history-entry ${isCurrent ? "admin-history-current" : ""}" data-id="${entry.id}">
+                    <div class="admin-history-info">
+                        <span class="admin-history-ver">v${entry.version}</span>
+                        <span class="admin-history-meta">${modCount} mod${modCount !== 1 ? "s" : ""} · ${date}</span>
+                        ${entry.published_by_name ? `<span class="admin-history-author">par ${entry.published_by_name}</span>` : ""}
+                    </div>
+                    ${isCurrent
+                        ? `<span class="admin-history-badge">Actuelle</span>`
+                        : `<div class="admin-history-rollback-btn size-btn" data-id="${entry.id}" data-ver="${entry.version}">Restaurer</div>`
+                    }
+                </div>`;
+            }).join("");
+
+            historyListEl.querySelectorAll(".admin-history-rollback-btn").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    let ver = btn.dataset.ver;
+                    let id  = btn.dataset.id;
+                    if (!confirm(`Restaurer la version v${ver} ? Elle sera active immédiatement pour tous les joueurs.`)) return;
+                    rollbackStatusEl.textContent = `Restauration de v${ver}...`;
+                    btn.classList.add("disabled");
+                    try {
+                        let accessToken = await this.getFreshAccessToken();
+                        let locked = await this.getLockedInstance();
+                        let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                            body: { action: "rollback", access_token: accessToken, session_token: this.adminSession, instance_name: locked.name, history_id: id },
+                        });
+                        if (error || !data?.version) throw new Error(await this.describeFunctionError(error));
+                        rollbackStatusEl.textContent = `v${data.version} restaurée.`;
+                        await loadCurrentManifest();
+                        await loadHistory();
+                    } catch (err) {
+                        rollbackStatusEl.textContent = `Échec : ${err.message || err}`;
+                        btn.classList.remove("disabled");
+                    }
+                });
+            });
+        };
+
+        let loadHistory = async () => {
+            if (!historyListEl) return;
+            try {
+                let locked = await this.getLockedInstance();
+                if (!locked) { historyListEl.innerHTML = ""; return; }
+                let accessToken = await this.getFreshAccessToken();
+                let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                    body: { action: "list_history", access_token: accessToken, session_token: this.adminSession, instance_name: locked.name },
+                });
+                if (error || !data?.history) throw new Error();
+                let { data: manifest } = await supabase.functions.invoke("get-modpack", { body: { instance_name: locked.name } });
+                renderHistory(data.history, manifest?.version);
+            } catch {
+                if (historyListEl) historyListEl.innerHTML = "<div class='setting-text'>Impossible de charger l'historique.</div>";
+            }
+        };
+
         let loadCurrentManifest = async () => {
             let locked = await this.getLockedInstance();
             if (!locked) return;
@@ -1179,6 +1271,9 @@ class Settings {
                 pending: false,
             }));
             renderMods();
+            if (versionInput && !versionInput.dataset.userEdited) {
+                versionInput.value = (manifest?.version || 0) + 1;
+            }
         };
 
         let refreshAdminAccess = async () => {
@@ -1197,8 +1292,10 @@ class Settings {
                     return;
                 }
                 this.adminAccessToken = accessToken;
+                this.adminSession = data.session_token || null;
                 navBtn.hidden = false;
                 await loadCurrentManifest();
+                await loadHistory();
             } catch (err) {
                 console.error("Vérification admin impossible :", err);
                 navBtn.hidden = true;
@@ -1247,6 +1344,7 @@ class Settings {
                             body: {
                                 action: "request_upload",
                                 access_token: accessToken,
+                                session_token: this.adminSession,
                                 instance_name: locked.name,
                                 filename: file.name,
                             },
@@ -1329,13 +1427,16 @@ class Settings {
             publishStatusEl.textContent = "Publication...";
             try {
                 let accessToken = await this.getFreshAccessToken();
+                if (!accessToken) throw new Error("Compte Microsoft introuvable. Reconnecte-toi via l'onglet Comptes.");
                 let { data, error } = await supabase.functions.invoke(
                     "admin-modpack",
                     {
                         body: {
                             action: "publish",
                             access_token: accessToken,
+                            session_token: this.adminSession,
                             instance_name: locked.name,
+                            target_version: versionInput?.value ? parseInt(versionInput.value, 10) : undefined,
                             mods: this.adminMods.map((mod) => ({
                                 filename: mod.filename,
                                 sha1: mod.sha1,
@@ -1349,11 +1450,250 @@ class Settings {
 
                 publishStatusEl.textContent = `Publié en version ${data.version}.`;
                 await loadCurrentManifest();
+                await loadHistory();
             } catch (err) {
                 console.error("Échec de la publication du modpack :", err);
-                publishStatusEl.textContent = `Échec de la publication : ${err.message || err}`;
+                let msg = err.message || String(err);
+                if (msg.includes("invalide") || msg.includes("expiré") || msg.includes("Microsoft")) {
+                    msg += " → Ferme et rouvre le launcher pour rafraîchir ton compte.";
+                }
+                publishStatusEl.textContent = `Échec : ${msg}`;
             } finally {
                 publishBtn.classList.remove("disabled");
+            }
+        });
+
+        // Instance Nebula loader override
+        let loaderMcInput   = document.querySelector(".admin-loader-mc-version");
+        let loaderTypeSelect = document.querySelector(".admin-loader-type");
+        let loaderVerInput  = document.querySelector(".admin-loader-version");
+        let loaderSaveBtn   = document.querySelector(".admin-loader-save-btn");
+        let loaderSaveStatus = document.querySelector(".admin-loader-save-status");
+
+        try {
+            let { data: loaderData } = await supabase.functions.invoke("get-config", {
+                body: { key: "instance_loader_overrides" },
+            });
+            let nebula = loaderData?.value?.Nebula;
+            if (nebula) {
+                if (loaderMcInput)    loaderMcInput.value  = nebula.minecraft_version || "";
+                if (loaderTypeSelect) loaderTypeSelect.value = nebula.loadder_type || "none";
+                if (loaderVerInput)   loaderVerInput.value  = nebula.loadder_version || "";
+            }
+        } catch {}
+
+        loaderSaveBtn?.addEventListener("click", async () => {
+            loaderSaveStatus.textContent = "Enregistrement...";
+            loaderSaveBtn.classList.add("disabled");
+            try {
+                let accessToken = await this.getFreshAccessToken();
+                let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                    body: {
+                        action: "set_instance_loader",
+                        access_token: accessToken,
+                        session_token: this.adminSession,
+                        instance_name: "Nebula",
+                        minecraft_version: loaderMcInput.value.trim(),
+                        loader_type: loaderTypeSelect.value,
+                        loader_version: loaderVerInput.value.trim(),
+                    },
+                });
+                if (error || !data?.ok) throw new Error(await this.describeFunctionError(error));
+                loaderSaveStatus.textContent = "Appliqué. Les joueurs verront le changement au prochain démarrage.";
+            } catch (err) {
+                loaderSaveStatus.textContent = `Échec : ${err.message || err}`;
+            } finally {
+                loaderSaveBtn.classList.remove("disabled");
+            }
+        });
+
+        // Profil du launcher
+        let profileCards = document.querySelectorAll(".profile-card");
+        let profileApplyBtn = document.querySelector(".profile-apply-btn");
+        let profileSaveStatus = document.querySelector(".profile-save-status");
+        let selectedProfile = await ipcRenderer.invoke("get-active-profile") || "nebula";
+
+        profileCards.forEach(card => {
+            if (card.dataset.profile === selectedProfile) card.classList.add("profile-selected");
+            card.addEventListener("click", () => {
+                profileCards.forEach(c => c.classList.remove("profile-selected"));
+                card.classList.add("profile-selected");
+                selectedProfile = card.dataset.profile;
+                profileSaveStatus.textContent = "";
+            });
+        });
+
+        profileApplyBtn.addEventListener("click", async () => {
+            profileSaveStatus.textContent = "Application...";
+            try {
+                let accessToken = this.adminAccessToken || await this.getFreshAccessToken();
+                let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                    body: { action: "set_profile", access_token: accessToken, session_token: this.adminSession, profile: selectedProfile },
+                });
+                if (error || !data?.ok) throw new Error(await this.describeFunctionError(error));
+                profileSaveStatus.textContent = "Rechargement...";
+                setTimeout(() => ipcRenderer.send("set-active-profile", selectedProfile), 600);
+            } catch (err) {
+                profileSaveStatus.textContent = `Échec : ${err.message || err}`;
+            }
+        });
+
+        // Maintenance
+        let maintenanceMsgInput = document.querySelector(".maintenance-msg-input");
+        let maintenanceEnabledCheckbox = document.querySelector(".maintenance-enabled-checkbox");
+        let maintenanceSaveBtn = document.querySelector(".maintenance-save-btn");
+        let maintenanceSaveStatus = document.querySelector(".maintenance-save-status");
+
+        try {
+            let { data: maintData } = await supabase.functions.invoke("get-config", {
+                body: { key: "maintenance" },
+            });
+            if (maintData?.value) {
+                maintenanceMsgInput.value = maintData.value.message || "";
+                maintenanceEnabledCheckbox.checked = !!maintData.value.enabled;
+            }
+        } catch (err) {
+            console.error("Chargement maintenance impossible :", err);
+        }
+
+        maintenanceSaveBtn.addEventListener("click", async () => {
+            maintenanceSaveBtn.classList.add("disabled");
+            maintenanceSaveStatus.textContent = "Enregistrement...";
+            try {
+                let accessToken = this.adminAccessToken || await this.getFreshAccessToken();
+                let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                    body: {
+                        action: "set_maintenance",
+                        access_token: accessToken,
+                        session_token: this.adminSession,
+                        enabled: maintenanceEnabledCheckbox.checked,
+                        message: maintenanceMsgInput.value.trim() || "Maintenance en cours, revenez bientôt !",
+                    },
+                });
+                if (error || !data?.ok)
+                    throw new Error(await this.describeFunctionError(error));
+                maintenanceSaveStatus.textContent = maintenanceEnabledCheckbox.checked
+                    ? "Maintenance activée. Les joueurs ne peuvent plus lancer le jeu."
+                    : "Maintenance désactivée.";
+                window.dispatchEvent(new Event("home:refresh"));
+            } catch (err) {
+                console.error("Échec maintenance :", err);
+                maintenanceSaveStatus.textContent = `Échec : ${err.message || err}`;
+            } finally {
+                maintenanceSaveBtn.classList.remove("disabled");
+            }
+        });
+
+        // MOTD admin
+        let motdTextInput = document.querySelector(".motd-text-input");
+        let motdColorInput = document.querySelector(".motd-color-input");
+        let motdEnabledCheckbox = document.querySelector(".motd-enabled-checkbox");
+        let motdSaveBtn = document.querySelector(".motd-save-btn");
+        let motdSaveStatus = document.querySelector(".motd-save-status");
+
+        try {
+            let { data: motdData } = await supabase.functions.invoke("get-config", {
+                body: { key: "motd" },
+            });
+            if (motdData?.value) {
+                motdTextInput.value = motdData.value.text || "";
+                motdColorInput.value = motdData.value.color || "#f97316";
+                motdEnabledCheckbox.checked = !!motdData.value.enabled;
+            }
+        } catch (err) {
+            console.error("Chargement MOTD impossible :", err);
+        }
+
+        motdSaveBtn.addEventListener("click", async () => {
+            motdSaveBtn.classList.add("disabled");
+            motdSaveStatus.textContent = "Enregistrement...";
+            try {
+                let accessToken = this.adminAccessToken || await this.getFreshAccessToken();
+                let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                    body: {
+                        action: "set_motd",
+                        access_token: accessToken,
+                        session_token: this.adminSession,
+                        text: motdTextInput.value.trim(),
+                        color: motdColorInput.value,
+                        enabled: motdEnabledCheckbox.checked,
+                    },
+                });
+                if (error || !data?.ok)
+                    throw new Error(await this.describeFunctionError(error));
+                motdSaveStatus.textContent = "MOTD enregistré.";
+                window.dispatchEvent(new Event("home:refresh"));
+            } catch (err) {
+                console.error("Échec de la sauvegarde du MOTD :", err);
+                motdSaveStatus.textContent = `Échec : ${err.message || err}`;
+            } finally {
+                motdSaveBtn.classList.remove("disabled");
+            }
+        });
+
+        // Flash Banner admin
+        let flashTextInput = document.querySelector(".flash-text-input");
+        let flashColorInput = document.querySelector(".flash-color-input");
+        let flashExpiresInput = document.querySelector(".flash-expires-input");
+        let flashSendBtn = document.querySelector(".flash-send-btn");
+        let flashClearBtn = document.querySelector(".flash-clear-btn");
+        let flashSaveStatus = document.querySelector(".flash-save-status");
+
+        flashSendBtn?.addEventListener("click", async () => {
+            if (!flashTextInput?.value.trim()) {
+                if (flashSaveStatus) flashSaveStatus.textContent = "Saisir un message.";
+                return;
+            }
+            flashSendBtn.classList.add("disabled");
+            if (flashSaveStatus) flashSaveStatus.textContent = "Envoi...";
+            try {
+                let accessToken = this.adminAccessToken || await this.getFreshAccessToken();
+                let minutes = parseInt(flashExpiresInput?.value) || 60;
+                let expiresAt = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+                let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                    body: {
+                        action: "set_flash_banner",
+                        access_token: accessToken,
+                        session_token: this.adminSession,
+                        text: flashTextInput.value.trim(),
+                        color: flashColorInput?.value || "#ef4444",
+                        enabled: true,
+                        expires_at: expiresAt,
+                    },
+                });
+                if (error || !data?.ok) throw new Error(await this.describeFunctionError(error));
+                if (flashSaveStatus) flashSaveStatus.textContent = `Annonce envoyée (expire dans ${minutes} min).`;
+                window.dispatchEvent(new Event("home:refresh"));
+            } catch (err) {
+                if (flashSaveStatus) flashSaveStatus.textContent = `Échec : ${err.message || err}`;
+            } finally {
+                flashSendBtn.classList.remove("disabled");
+            }
+        });
+
+        flashClearBtn?.addEventListener("click", async () => {
+            flashClearBtn.classList.add("disabled");
+            if (flashSaveStatus) flashSaveStatus.textContent = "Suppression...";
+            try {
+                let accessToken = this.adminAccessToken || await this.getFreshAccessToken();
+                let { data, error } = await supabase.functions.invoke("admin-modpack", {
+                    body: {
+                        action: "set_flash_banner",
+                        access_token: accessToken,
+                        session_token: this.adminSession,
+                        text: "",
+                        color: "#ef4444",
+                        enabled: false,
+                        expires_at: null,
+                    },
+                });
+                if (error || !data?.ok) throw new Error(await this.describeFunctionError(error));
+                if (flashSaveStatus) flashSaveStatus.textContent = "Annonce effacée.";
+                window.dispatchEvent(new Event("home:refresh"));
+            } catch (err) {
+                if (flashSaveStatus) flashSaveStatus.textContent = `Échec : ${err.message || err}`;
+            } finally {
+                flashClearBtn.classList.remove("disabled");
             }
         });
     }

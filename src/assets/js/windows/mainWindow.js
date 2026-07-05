@@ -1,8 +1,19 @@
 const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
 const os = require("os");
+const fs = require("fs");
 const pkg = require("../../../../package.json");
 let dev = process.env.DEV_TOOL === "open";
+
+function getActiveProfile() {
+    try {
+        let profilePath = path.join(app.getPath("userData"), "nebula-active-profile.json");
+        if (fs.existsSync(profilePath)) {
+            return JSON.parse(fs.readFileSync(profilePath, "utf-8")).profile || "nebula";
+        }
+    } catch {}
+    return "nebula";
+}
 /** @type {BrowserWindow|undefined} */
 let mainWindow = undefined;
 
@@ -41,7 +52,13 @@ function createWindow() {
 
     Menu.setApplicationMenu(null);
     mainWindow.setMenuBarVisibility(false);
-    mainWindow.loadFile(path.join(`${app.getAppPath()}/src/launcher.html`));
+    let activeProfile = getActiveProfile();
+    let launcherFiles = {
+        nebula: "src/launcher.html",
+        terranova: "src/launcher-terranova.html",
+    };
+    let launcherFile = launcherFiles[activeProfile] || "src/launcher.html";
+    mainWindow.loadFile(path.join(app.getAppPath(), launcherFile));
     mainWindow.once("ready-to-show", () => {
         if (mainWindow) {
             if (dev) {

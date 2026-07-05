@@ -1,0 +1,275 @@
+<!-- Panel HOME TerraNova — injecté dans .panel.home par createPanels() -->
+<div class="tn-home-wrapper">
+
+    <!-- ══ COLONNE PRINCIPALE ══ -->
+    <div class="tn-main-area">
+
+        <!-- FLASH BANNER (annonces urgentes admin) -->
+        <div id="tn-flash-banner" class="tn-flash-banner" style="display:none;">
+            <span class="tn-flash-icon">⚠</span>
+            <span class="tn-flash-text"></span>
+            <button class="tn-flash-dismiss">✕</button>
+        </div>
+
+        <!-- BANNER -->
+        <div class="instance-banner">
+            <img src="assets/images/terranova/banner.png" alt="TerraNova" class="banner-img">
+            <div class="banner-overlay">
+                <h1 class="banner-title">TERRANOVA</h1>
+                <p class="banner-status">
+                    <span class="status-dot"></span>
+                    <!-- info-starting-game-text requis par home.js -->
+                    <span class="info-starting-game-text">Prêt à jouer !</span>
+                </p>
+                <!-- motd-banner requis par home.js (hidden par défaut) -->
+                <div class="motd-banner" hidden>
+                    <span class="motd-bar"></span>
+                    <span class="motd-text"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- INSTANCE CARD -->
+        <div class="instance-card">
+            <div class="instance-card-left">
+                <div class="instance-icon">
+                    <img src="assets/images/terranova/logo.png" style="width:38px;height:38px;object-fit:contain;border-radius:4px;" alt="">
+                </div>
+                <div class="instance-meta">
+                    <!-- active-version-label requis par home.js renderActiveVersion() -->
+                    <span class="instance-name">TerraNova</span>
+                    <div class="instance-tags">
+                        <span class="tag tag-mc active-version-label"></span>
+                    </div>
+                </div>
+                <div class="instance-ready">
+                    <span class="dot-online"></span> Prêt à jouer
+                </div>
+            </div>
+            <div style="position:relative">
+                <!-- instance-select requis par home.js (ouvre la popup) -->
+                <button class="more-btn instance-select">•••</button>
+            </div>
+        </div>
+
+        <!-- TABS BAR instance -->
+        <div class="instance-tabs-bar">
+            <button class="itab active" data-itab="apercu">APERÇU</button>
+            <button class="itab" data-itab="imods">MODS</button>
+            <button class="itab" data-itab="iresources">RESSOURCES</button>
+            <button class="itab" data-itab="inotes">NOTES</button>
+        </div>
+
+        <!-- INSTANCE BODY -->
+        <div class="instance-body">
+
+            <!-- ── APERÇU ── -->
+            <div class="itab-content active" id="itab-apercu">
+                <div class="apercu-grid">
+                    <div class="info-panel">
+                        <h3 class="panel-title">INFORMATIONS</h3>
+                        <table class="info-table">
+                            <tr><td>Nom</td><td id="tn-info-nom">TerraNova</td></tr>
+                            <tr><td>Version</td><td id="tn-info-version" class="tn-info-version">—</td></tr>
+                            <tr><td>Loader</td><td id="tn-info-loader" class="tn-info-loader">—</td></tr>
+                            <tr><td>Version Java</td><td id="tn-info-java" class="tn-info-java">—</td></tr>
+                        </table>
+                    </div>
+                    <div class="desc-panel">
+                        <h3 class="panel-title">SERVEUR</h3>
+                        <!-- server-status-badge requis par home.js -->
+                        <div class="server-status-badge offline" id="tn-server-badge">
+                            Connexion...
+                        </div>
+                        <div style="margin-top:8px;">
+                            <span class="server-host" id="tn-server-host" style="font-size:11px;color:var(--muted);">—</span>
+                        </div>
+                        <div class="server-stats" style="margin-top:8px;">
+                            <div class="server-stat"><span>Joueurs</span><span id="tn-srv-players">—</span></div>
+                            <div class="server-stat"><span>Ping</span><span id="tn-srv-ping">—</span></div>
+                            <div class="server-stat"><span>Version</span><span id="tn-srv-version">—</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- News (home.js cherche .news-list) -->
+                <div style="padding: 0 18px 12px;">
+                    <div class="news-list tn-news-list"></div>
+                </div>
+            </div>
+
+            <!-- ── MODS ── -->
+            <div class="itab-content" id="itab-imods">
+                <div class="mods-header">
+                    <span>Mods de l'instance</span>
+                    <span class="mods-count" id="tn-mods-count" style="color:var(--muted);font-size:11px;margin-left:8px;"></span>
+                </div>
+                <div class="mods-list" id="tn-mods-list" style="padding:8px 12px;display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- ── RESSOURCES ── -->
+            <div class="itab-content" id="itab-iresources">
+                <div style="padding:20px;color:var(--muted);font-size:13px;">Aucun pack de ressources configuré.</div>
+            </div>
+
+            <!-- ── NOTES ── -->
+            <div class="itab-content" id="itab-inotes">
+                <textarea class="notes-area" placeholder="Ajoutez vos notes sur cette instance..."></textarea>
+            </div>
+
+        </div><!-- /.instance-body -->
+
+        <!-- FOOTER BARRE -->
+        <div class="instance-footer">
+            <div class="footer-left">
+                <div class="dl-status">
+                    <span class="dl-icon">⬇</span>
+                    <div class="dl-info">
+                        <span id="tn-dl-text">Aucun téléchargement en cours</span>
+                        <span class="launcher-up"><span class="dot-online"></span> Launcher à jour</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Barre de progression Minecraft style dans le footer -->
+            <div class="tn-progress-wrap" id="tn-progress-outer">
+                <div class="mc-progress-fill" id="tn-progress-fill" style="width:0%"></div>
+                <span class="mc-progress-label" id="tn-progress-pct">0%</span>
+            </div>
+            <div class="footer-right">
+                <span class="mem-label">Mémoire utilisée</span>
+                <div class="mem-bar-wrap">
+                    <div class="mem-bar-fill" id="tn-mem-fill" style="width:35%"></div>
+                </div>
+                <span class="mem-text" id="tn-mem-text">— / — MB</span>
+            </div>
+        </div>
+
+    </div><!-- /.tn-main-area -->
+
+    <!-- ══ RIGHT PANEL (JOUER + STATUT + SERVEUR) ══ -->
+    <div class="right-panel">
+
+        <!-- Bouton JOUER -->
+        <div class="play-section">
+            <!-- play-instance requis par home.js (reçoit .disabled, .maintenance-blocked) -->
+            <div class="play-instance play-btn-wrap">
+                <!-- play-btn requis par home.js -->
+                <button class="play-btn">
+                    <span class="play-icon">▶</span> JOUER
+                </button>
+                <!-- play-dropdown caché par défaut, affiché si instances > 1 -->
+                <button class="play-dropdown" style="display:none">▾</button>
+            </div>
+            <!-- modpack-update-btn requis par home.js -->
+            <button class="modpack-update-btn">
+                ↺ Mettre à jour les mods
+            </button>
+            <button class="folder-btn tn-folder-btn" id="tn-folder-btn">
+                <span>📁</span> DOSSIER DE L'INSTANCE
+            </button>
+        </div>
+
+        <!-- STATUT -->
+        <div class="status-panel">
+            <h3 class="panel-title">STATUT</h3>
+            <div class="status-row">
+                <span>État</span>
+                <span class="status-val green info-starting-game-text">Prêt à jouer</span>
+            </div>
+            <div class="status-row">
+                <span>Mémoire allouée</span>
+                <span class="status-val" id="tn-status-ram">—</span>
+            </div>
+        </div>
+
+        <!-- SERVEUR -->
+        <div class="server-panel">
+            <div class="server-panel-header">
+                <h3 class="panel-title">SERVEUR</h3>
+            </div>
+            <div class="server-status-row">
+                <span class="server-badge server-status-badge offline" id="tn-srv-badge">Connexion...</span>
+                <span class="server-host" id="tn-srv-host">—</span>
+            </div>
+            <div class="server-stats">
+                <div class="server-stat"><span>Joueurs</span><span id="tn-srv-pl">—</span></div>
+                <div class="server-stat"><span>Ping</span><span id="tn-srv-pi">—</span></div>
+                <div class="server-stat"><span>Version</span><span id="tn-srv-ver">—</span></div>
+            </div>
+            <div class="server-motd" id="tn-server-motd"></div>
+        </div>
+
+    </div><!-- /.right-panel -->
+
+    <!-- ══ INSTANCE SELECTION POPUP (Nebula) ══ -->
+    <!-- instance-popup requis par home.js instancesSelect() -->
+    <div class="instance-popup" style="display:none">
+        <div class="instances-tab">
+            <!-- close-popup requis par home.js -->
+            <button class="close-popup"><i class="fa-solid fa-xmark"></i></button>
+            <p>Choisissez votre instance</p>
+            <!-- instances-List requis par home.js -->
+            <div class="instances-List"></div>
+        </div>
+    </div>
+
+    <!-- Élément progress caché (home.js l'utilise via .value et .max) -->
+    <progress class="progress-bar" value="0" max="100" style="display:none;position:absolute;width:0;height:0;opacity:0;pointer-events:none;"></progress>
+
+    <!-- Élément progress caché bis (home.js l'utilise via .value et .max) — déjà déclaré au-dessus -->
+
+</div><!-- /.tn-home-wrapper -->
+
+<!-- ══ OVERLAY DE LANCEMENT (positionné dans body par JS) ══ -->
+<div id="tn-launch-overlay" style="display:none;">
+    <img src="assets/images/terranova/banner.png" alt="TerraNova" id="tn-launch-img">
+
+    <div class="tn-ls-steps-row">
+        <div class="tn-ls-step" id="tn-step-neoforge">
+            <div class="tn-ls-dot active"></div>
+            <span>NeoForge</span>
+        </div>
+        <div class="tn-ls-line"></div>
+        <div class="tn-ls-step" id="tn-step-assets">
+            <div class="tn-ls-dot"></div>
+            <span>TerraNova</span>
+        </div>
+        <div class="tn-ls-line"></div>
+        <div class="tn-ls-step" id="tn-step-launch">
+            <div class="tn-ls-dot"></div>
+            <span>Lancement</span>
+        </div>
+    </div>
+
+    <div id="tn-launch-status">Préparation...</div>
+
+    <div class="tn-ls-bar-wrap">
+        <div id="tn-launch-bar"></div>
+        <span id="tn-launch-pct">0%</span>
+    </div>
+
+    <button id="tn-launch-cancel">Annuler</button>
+</div>
+
+<style>
+#tn-launch-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(0,0,0,0.95);
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+}
+#tn-launch-img { max-width: 380px; width: 80%; object-fit: contain; border-radius: 8px; }
+.tn-ls-steps-row { display:flex; align-items:center; gap:0; }
+.tn-ls-step { display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#666;min-width:90px;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase; }
+.tn-ls-dot { width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);transition:all .3s; }
+.tn-ls-dot.active { background:var(--color,#22c55e);border-color:var(--color,#22c55e);box-shadow:0 0 10px var(--color,#22c55e); }
+.tn-ls-dot.done { background:rgba(34,197,94,0.35);border-color:#22c55e; }
+.tn-ls-step.active span { color:var(--color,#22c55e); }
+.tn-ls-line { width:70px;height:2px;background:rgba(255,255,255,0.1);margin-bottom:22px; }
+#tn-launch-status { font-size:13px;color:#aaa;font-family:'Rajdhani',sans-serif;letter-spacing:1px; }
+.tn-ls-bar-wrap { width:420px;max-width:80vw;height:26px;background:rgba(255,255,255,0.08);border-radius:6px;position:relative;overflow:hidden; }
+#tn-launch-bar { height:100%;width:0%;background:var(--color,#22c55e);border-radius:6px;transition:width .2s; }
+#tn-launch-pct { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff; }
+#tn-launch-cancel { padding:7px 24px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#888;font-size:12px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase; }
+#tn-launch-cancel:hover { background:rgba(255,255,255,0.12);color:#ccc; }
+</style>
+

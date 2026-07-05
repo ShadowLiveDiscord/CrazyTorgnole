@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 import database from "./database.js";
+import supabase from "./supabase.js";
 
 const dataDir = path.join(__dirname, "assets", "data");
 
@@ -29,10 +30,22 @@ class Config {
         let instancesList = [];
         instances = Object.entries(instances);
 
+        // Fetch remote loader overrides (admin can change MC version/loader without a rebuild)
+        let loaderOverrides = {};
+        try {
+            let { data } = await supabase.functions.invoke("get-config", {
+                body: { key: "instance_loader_overrides" },
+            });
+            loaderOverrides = data?.value || {};
+        } catch {}
+
         for (let [name, data] of instances) {
             let instance = data;
             instance.name = name;
             instance.custom = false;
+            if (loaderOverrides[name]) {
+                instance.loadder = { ...instance.loadder, ...loaderOverrides[name] };
+            }
             instancesList.push(instance);
         }
 

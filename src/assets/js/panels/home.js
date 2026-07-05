@@ -48,14 +48,21 @@ class Home {
             `v${pkg.version}`;
         this.socialLick();
         this.loadNews();
+        this.loadMotd();
+        this.checkMaintenance();
+        this.checkFlashBanner();
         this.instancesSelect();
         this.accountWidget();
         this.renderActiveVersion();
         this.checkModpackUpdate();
         this.modpackUpdateButton();
+        this._flashBannerInterval = setInterval(() => this.checkFlashBanner(), 30000);
         window.addEventListener("home:refresh", () => {
             this.renderActiveVersion();
             this.checkModpackUpdate();
+            this.loadMotd();
+            this.checkMaintenance();
+            this.checkFlashBanner();
         });
         document
             .querySelector(".settings-btn")
@@ -67,9 +74,11 @@ class Home {
         if (!label) return;
         let configClient = await this.db.readData("configClient");
         let instances = await config.getInstanceList();
-        let active =
-            instances.find((i) => i.name == configClient?.instance_selct) ||
-            instances.find((i) => !i.custom);
+        let profile = "nebula";
+        try { profile = await ipcRenderer.invoke("get-active-profile") || "nebula"; } catch {}
+        let active = profile === "terranova"
+            ? instances.find(i => i.name === ".terranova") || instances.find(i => !i.custom)
+            : instances.find((i) => i.name == configClient?.instance_selct) || instances.find((i) => !i.custom);
 
         let instanceSelectBTN = document.querySelector(".instance-select");
         let playInstanceBTN = document.querySelector(".play-instance");
@@ -94,6 +103,11 @@ class Home {
     async getActiveInstance() {
         let configClient = await this.db.readData("configClient");
         let instances = await config.getInstanceList();
+        let profile = "nebula";
+        try { profile = await ipcRenderer.invoke("get-active-profile") || "nebula"; } catch {}
+        if (profile === "terranova") {
+            return instances.find(i => i.name === ".terranova") || instances.find(i => !i.custom);
+        }
         return (
             instances.find((i) => i.name == configClient?.instance_selct) ||
             instances.find((i) => !i.custom)
@@ -147,13 +161,19 @@ class Home {
             return;
         }
 
+        // Toujours afficher le bouton pour les instances verrouillées
+        btn.classList.add("show");
+        btn.innerHTML = "↺ Vérification des mods...";
+        btn.classList.add("disabled");
+
         try {
             let { data: manifest, error } = await supabase.functions.invoke(
                 "get-modpack",
                 { body: { instance_name: active.name } },
             );
             if (error || !manifest || !manifest.version) {
-                btn.classList.remove("show");
+                btn.innerHTML = "↺ Mettre à jour les mods";
+                btn.classList.remove("disabled");
                 return;
             }
 
@@ -161,9 +181,17 @@ class Home {
             let localVersion =
                 configClient?.modpack_versions?.[active.name] || 0;
 
-            btn.classList.toggle("show", manifest.version !== localVersion);
+            btn.classList.remove("disabled");
+            if (manifest.version !== localVersion) {
+                btn.innerHTML = `↺ Mettre à jour les mods (v${localVersion} → v${manifest.version})`;
+            } else {
+                btn.innerHTML = `✓ Mods à jour (v${manifest.version})`;
+                btn.style.opacity = "0.6";
+            }
         } catch (err) {
             console.error("Impossible de vérifier le modpack :", err);
+            btn.innerHTML = "↺ Mettre à jour les mods";
+            btn.classList.remove("disabled");
         }
     }
 
@@ -307,6 +335,88 @@ class Home {
         });
     }
 
+    async loadMotd() {
+        let banner = document.querySelector(".motd-banner");
+        let textEl = document.querySelector(".motd-text");
+        if (!banner || !textEl) return;
+        try {
+            let { data, error } = await supabase.functions.invoke("get-config", {
+                body: { key: "motd" },
+            });
+            if (error || !data?.value?.enabled || !data.value.text) {
+                banner.hidden = true;
+                return;
+            }
+            textEl.textContent = data.value.text;
+            banner.style.color = data.value.color || "#f97316";
+            banner.removeAttribute("hidden");
+        } catch (err) {
+            console.error("Chargement MOTD impossible :", err);
+        }
+    }
+
+    async checkMaintenance() {
+        let playInstance = document.querySelector(".play-instance");
+        let statusText = document.querySelector(".info-starting-game-text");
+        if (!playInstance || !statusText) return;
+        try {
+            let { data, error } = await supabase.functions.invoke("get-config", {
+                body: { key: "maintenance" },
+            });
+            if (!error && data?.value?.enabled) {
+                playInstance.classList.add("maintenance-blocked");
+                statusText.textContent = data.value.message || "Maintenance en cours, revenez bientôt !";
+                statusText.style.color = "#f97316";
+                let playBtn = document.querySelector(".play-btn");
+                if (playBtn) playBtn.disabled = true;
+            } else {
+                playInstance.classList.remove("maintenance-blocked");
+                let playBtn = document.querySelector(".play-btn");
+                if (playBtn) playBtn.disabled = false;
+                if (statusText.style.color === "rgb(249, 115, 22)") {
+                    statusText.textContent = "Prêt à jouer";
+                    statusText.style.color = "";
+                }
+            }
+        } catch (err) {
+            console.error("Vérification maintenance impossible :", err);
+        }
+    }
+
+    async checkFlashBanner() {
+        let banner = document.getElementById("tn-flash-banner");
+        if (!banner) return;
+        try {
+            let { data, error } = await supabase.functions.invoke("get-config", {
+                body: { key: "flash_banner" },
+            });
+            if (error || !data?.value?.enabled || !data.value.text) {
+                banner.style.display = "none";
+                return;
+            }
+            if (data.value.expires_at && new Date(data.value.expires_at) < new Date()) {
+                banner.style.display = "none";
+                return;
+            }
+            let dismissedKey = "tn_flash_" + data.value.text.slice(0, 32);
+            if (sessionStorage.getItem(dismissedKey)) {
+                banner.style.display = "none";
+                return;
+            }
+            let textEl = banner.querySelector(".tn-flash-text");
+            if (textEl) textEl.textContent = data.value.text;
+            banner.style.borderLeftColor = data.value.color || "#ef4444";
+            banner.style.display = "flex";
+            let dismissBtn = banner.querySelector(".tn-flash-dismiss");
+            if (dismissBtn) {
+                dismissBtn.onclick = () => {
+                    banner.style.display = "none";
+                    sessionStorage.setItem(dismissedKey, "1");
+                };
+            }
+        } catch {}
+    }
+
     async loadNews() {
         let list = document.querySelector(".news-list");
         if (!list) return;
@@ -385,6 +495,19 @@ class Home {
 
     async instancesSelect() {
         let configClient = await this.db.readData("configClient");
+
+        // En profil TerraNova, verrouiller l'instance sur .terranova immédiatement.
+        let profile = "nebula";
+        try { profile = await ipcRenderer.invoke("get-active-profile") || "nebula"; } catch {}
+        if (profile === "terranova") {
+            if (configClient.instance_selct !== ".terranova") {
+                configClient.instance_selct = ".terranova";
+                await this.db.updateData("configClient", configClient);
+            }
+            let instanceSelectBTN = document.querySelector(".instance-select");
+            if (instanceSelectBTN) instanceSelectBTN.style.display = "none";
+        }
+
         let auth = await this.db.readData(
             "accounts",
             configClient.account_selected,
@@ -630,14 +753,22 @@ class Home {
                 path: configClient.java_config.java_path,
             },
 
-            JVM_ARGS: options.jvm_args || [],
+            JVM_ARGS: [
+                ...(options.jvm_args || []),
+                ...(configClient.game_config.screen_size.borderless
+                    ? ["-Dorg.lwjgl.opengl.Window.undecorated=true"]
+                    : []),
+            ],
             GAME_ARGS: [],
 
-            screen: {
-                width: configClient.game_config.screen_size.width,
-                height: configClient.game_config.screen_size.height,
-                fullscreen: configClient.game_config.screen_size.fullscreen || false,
-            },
+            screen: await (async () => {
+                let s = configClient.game_config.screen_size;
+                if (s.borderless) {
+                    let native = await ipcRenderer.invoke("get-screen-size");
+                    return { width: native.width, height: native.height, fullscreen: false };
+                }
+                return { width: s.width, height: s.height, fullscreen: s.fullscreen || false };
+            })(),
 
             memory: {
                 min: `${configClient.java_config.java_memory.min * 1024}M`,
@@ -656,21 +787,89 @@ class Home {
         progressBar.style.display = "";
         ipcRenderer.send("main-window-progress-load");
 
+        // Indicateur EN JEU + chrono
+        let playBtn = document.querySelector(".play-btn");
+        let originalPlayBtnHTML = playBtn?.innerHTML || "";
+        let sessionTimer = null;
+        let sessionStart = null;
+        const startEnJeuTimer = () => {
+            sessionStart = Date.now();
+            const tick = () => {
+                let e = Math.floor((Date.now() - sessionStart) / 1000);
+                let h = Math.floor(e / 3600), m = Math.floor((e % 3600) / 60), s = e % 60;
+                let t = h > 0 ? `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}` : `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+                if (playBtn) playBtn.innerHTML = `<span style="display:block;font-size:10px;letter-spacing:2px;opacity:0.75;margin-bottom:2px;">🎮 EN JEU</span><span style="font-family:monospace;font-size:15px;">${t}</span>`;
+            };
+            tick();
+            sessionTimer = setInterval(tick, 1000);
+        };
+        const stopEnJeuTimer = () => {
+            if (sessionTimer) { clearInterval(sessionTimer); sessionTimer = null; }
+            if (playBtn) playBtn.innerHTML = originalPlayBtnHTML;
+        };
+
+        // TerraNova launch overlay
+        const tnOverlay = document.getElementById("tn-launch-overlay");
+        const tnBar = document.getElementById("tn-launch-bar");
+        const tnPct = document.getElementById("tn-launch-pct");
+        const tnStatus = document.getElementById("tn-launch-status");
+        const tnStepNeo = document.getElementById("tn-step-neoforge");
+        const tnStepAssets = document.getElementById("tn-step-assets");
+        const tnStepLaunch = document.getElementById("tn-step-launch");
+        const tnCancel = document.getElementById("tn-launch-cancel");
+
+        const showTnOverlay = () => {
+            if (!tnOverlay) return;
+            if (tnOverlay.parentNode !== document.body) document.body.appendChild(tnOverlay);
+            tnOverlay.style.display = "flex";
+        };
+        const hideTnOverlay = () => {
+            if (!tnOverlay) return;
+            tnOverlay.style.display = "none";
+        };
+        const setTnStep = (step) => {
+            if (!tnStepNeo) return;
+            [tnStepNeo, tnStepAssets, tnStepLaunch].forEach(el => { el.classList.remove("active"); el.querySelector(".tn-ls-dot")?.classList.remove("active", "done"); });
+            if (step === "neoforge") { tnStepNeo.classList.add("active"); tnStepNeo.querySelector(".tn-ls-dot").classList.add("active"); }
+            if (step === "assets") { tnStepNeo.querySelector(".tn-ls-dot").classList.add("done"); tnStepAssets.classList.add("active"); tnStepAssets.querySelector(".tn-ls-dot").classList.add("active"); }
+            if (step === "launch") { tnStepNeo.querySelector(".tn-ls-dot").classList.add("done"); tnStepAssets.querySelector(".tn-ls-dot").classList.add("done"); tnStepLaunch.classList.add("active"); tnStepLaunch.querySelector(".tn-ls-dot").classList.add("active"); }
+        };
+        const setTnProgress = (progress, size, label) => {
+            if (!tnBar) return;
+            let pct = size > 0 ? Math.round((progress / size) * 100) : 0;
+            tnBar.style.width = `${pct}%`;
+            if (tnPct) tnPct.textContent = `${pct}%`;
+            if (tnStatus && label) tnStatus.textContent = label;
+        };
+
+        if (tnCancel) tnCancel.onclick = () => { launch.removeAllListeners(); hideTnOverlay(); playInstanceBTN.classList.remove("disabled"); infoStarting.innerHTML = "Prêt à jouer"; };
+
+        showTnOverlay();
+        setTnStep("neoforge");
+        if (tnStatus) tnStatus.textContent = "Vérification de NeoForge...";
+
         launch.on("extract", (extract) => {
             ipcRenderer.send("main-window-progress-load");
+            setTnStep("neoforge");
+            if (tnStatus) tnStatus.textContent = "Installation de NeoForge...";
             console.log(extract);
         });
 
         launch.on("progress", (progress, size) => {
             console.log(opt, launch);
-            infoStarting.innerHTML = `Téléchargement ${((progress / size) * 100).toFixed(0)}%`;
+            let pct = ((progress / size) * 100).toFixed(0);
+            infoStarting.innerHTML = `Téléchargement ${pct}%`;
+            setTnStep("assets");
+            setTnProgress(progress, size, `Téléchargement des assets ${pct}%`);
             ipcRenderer.send("main-window-progress", { progress, size });
             progressBar.value = progress;
             progressBar.max = size;
         });
 
         launch.on("check", (progress, size) => {
-            infoStarting.innerHTML = `Vérification ${((progress / size) * 100).toFixed(0)}%`;
+            let pct = ((progress / size) * 100).toFixed(0);
+            infoStarting.innerHTML = `Vérification ${pct}%`;
+            setTnProgress(progress, size, `Vérification ${pct}%`);
             ipcRenderer.send("main-window-progress", { progress, size });
             progressBar.value = progress;
             progressBar.max = size;
@@ -691,14 +890,25 @@ class Home {
             console.log(patch);
             ipcRenderer.send("main-window-progress-load");
             infoStarting.innerHTML = `Patch en cours...`;
+            if (tnStatus) tnStatus.textContent = "Patch en cours...";
         });
 
         launch.on("data", (e) => {
             progressBar.style.display = "none";
-            if (
-                configClient.launcher_config.closeLauncher == "close-launcher"
-            ) {
+            setTnStep("launch");
+            setTnProgress(1, 1, "Démarrage de Minecraft...");
+            startEnJeuTimer();
+            // Discord RPC — récupère le nb de joueurs en ligne depuis le badge serveur
+            try {
+                let plEl = document.getElementById("tn-srv-pl") || document.getElementById("tn-srv-players");
+                let m = plEl?.textContent.match(/^(\d+)/);
+                window._tnDiscord?.setPresenceInGame(m ? parseInt(m[1]) : null);
+            } catch {}
+            if (configClient.launcher_config.closeLauncher == "close-launcher") {
                 ipcRenderer.send("main-window-hide");
+                hideTnOverlay();
+            } else {
+                hideTnOverlay();
             }
             new logger("Minecraft", "#36b030");
             ipcRenderer.send("main-window-progress-load");
@@ -707,9 +917,9 @@ class Home {
         });
 
         launch.on("close", (code) => {
-            if (
-                configClient.launcher_config.closeLauncher == "close-launcher"
-            ) {
+            stopEnJeuTimer();
+            try { window._tnDiscord?.setPresenceLauncher(); } catch {}
+            if (configClient.launcher_config.closeLauncher == "close-launcher") {
                 ipcRenderer.send("main-window-show");
             }
             ipcRenderer.send("main-window-progress-reset");
@@ -724,32 +934,24 @@ class Home {
         });
 
         launch.on("error", (err) => {
-            if (typeof launch !== "object") {
-                console.log("Aborting launch");
-                console.log(typeof launch);
-            }
-            /*let popupError = new popup();
-
+            stopEnJeuTimer();
+            try { window._tnDiscord?.setPresenceLauncher(); } catch {}
+            hideTnOverlay();
+            let popupError = new popup();
             popupError.openPopup({
-                title: "Erreur",
-                content: err.error,
+                title: "Erreur de lancement",
+                content: err?.error || err?.message || JSON.stringify(err) || "Erreur inconnue.",
                 color: "red",
                 options: true,
-            });*/
-
-            if (
-                configClient.launcher_config.closeLauncher == "close-launcher"
-            ) {
+            });
+            if (configClient.launcher_config.closeLauncher == "close-launcher") {
                 ipcRenderer.send("main-window-show");
             }
             ipcRenderer.send("main-window-progress-reset");
             playInstanceBTN.classList.remove("disabled");
             progressBar.value = 0;
             infoStarting.innerHTML = `Prêt à jouer`;
-            console.log("test: ", typeof launch, launch);
-            // launch.Launch(opt);
             launch.removeAllListeners();
-            // new logger(pkg.name, "#7289da");
             console.error(err);
             this.endSession(sessionId).then(() =>
                 renderPlaytime(authenticator),

@@ -1,0 +1,399 @@
+<!-- Panel SETTINGS TerraNova — structure identique à settings.html original pour settings.js -->
+<!-- .container → flex row, .nav-settings 220px gauche, .container-settings absolute droite -->
+<div class="container" style="display:flex;width:100%;height:100%;position:relative;">
+
+    <!-- ── NAV GAUCHE 220px ── -->
+    <div class="nav-settings" style="background:var(--bg2);border-right:1px solid var(--border);flex-shrink:0;">
+        <p style="font-family:'Rajdhani',sans-serif;letter-spacing:3px;color:var(--green-bright);">PARAMÈTRES</p>
+        <div class="nav-box">
+            <div id="account"    class="nav-settings-btn active-settings-BTN">COMPTES</div>
+            <div id="java"       class="nav-settings-btn">JAVA</div>
+            <div id="resolution" class="nav-settings-btn">RÉSOLUTION</div>
+            <div id="version"    class="nav-settings-btn">VERSION</div>
+            <div id="mods"       class="nav-settings-btn">MODS</div>
+            <div id="launcher"   class="nav-settings-btn">LAUNCHER</div>
+            <div id="theme"      class="nav-settings-btn">THÈME</div>
+            <div id="admin"      class="nav-settings-btn admin-nav-btn" hidden>ADMIN</div>
+            <div id="save"       class="nav-settings-btn">ACCUEIL</div>
+        </div>
+    </div>
+
+    <!-- ── ZONE CONTENU (flex:1, les tabs s'y positionnent en absolute) ── -->
+    <div class="settings-content-area" style="flex:1;position:relative;overflow:hidden;height:100%;">
+
+    <!-- ── COMPTES ── -->
+    <div id="account-tab" class="container-settings active-container-settings content-scroll">
+        <div class="titre-tab">Comptes joueurs</div>
+        <div class="accounts-list content-scroll">
+            <div class="account" id="add">
+                <div class="add-profile">
+                    <div class="icon-account-add">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                </div>
+                <div class="add-text-profile">Ajouter un compte</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── JAVA / RAM ── -->
+    <div id="java-tab" class="container-settings content-scroll">
+        <div class="titre-tab">Paramètre de votre RAM</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Définition de la RAM allouée à votre jeu. Une quantité plus importante augmentera les performances.<br><br>
+                <b>-RAM Maximale :</b> Quantité totale de RAM allouée. Recommandé : ne pas dépasser 50% de votre RAM totale.<br><br>
+                <b>-RAM Minimale :</b> Quantité minimale au démarrage. Recommandé : pas plus de 4 Go.
+            </div>
+            <div class="settings-elements content-evenly">
+                <div class="memory-slider" min="0.5" max="8" step="0.5">
+                    <div class="slider-touch-left"><span value="0 Go"></span></div>
+                    <div class="slider-touch-right"><span value="0 Go"></span></div>
+                    <div class="slider-line"><span></span></div>
+                </div>
+                <div class="ram-info-block">
+                    <b>Vous possédez un total de <span id="total-ram">0 Go</span> RAM.</b><br>
+                    <b>Vous possédez un total de <span id="free-ram">0 Go</span> RAM disponible.</b>
+                </div>
+            </div>
+        </div>
+        <div class="titre-tab">Emplacement de Java</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Le launcher utilise une version embarquée de Java.<br>
+                Emplacement : <span class="java-path-txt"></span><br>
+                Vous pouvez spécifier votre propre exécutable si nécessaire.
+            </div>
+            <div class="settings-elements content-evenly">
+                <input type="text" class="java-path-input-text" disabled>
+                <input type="file" class="java-path-input-file" accept="application/octet-stream">
+                <div class="java-path-box">
+                    <div class="java-path-set java-path-btn">Changer</div>
+                    <div class="java-path-reset java-path-btn">Par défaut</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── RÉSOLUTION ── -->
+    <div id="resolution-tab" class="container-settings">
+        <div class="titre-tab">Paramètres de résolution Minecraft</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Définissez une résolution personnalisée. Par défaut : 854×480.</div>
+            <div class="settings-elements content-center resolution-presets">
+                <div class="resolution-preset-btn" data-w="854"  data-h="480">854×480</div>
+                <div class="resolution-preset-btn" data-w="1280" data-h="720">1280×720</div>
+                <div class="resolution-preset-btn" data-w="1366" data-h="768">1366×768</div>
+                <div class="resolution-preset-btn" data-w="1600" data-h="900">1600×900</div>
+                <div class="resolution-preset-btn" data-w="1920" data-h="1080">1920×1080</div>
+                <div class="resolution-preset-btn" data-w="2560" data-h="1440">2560×1440</div>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="input-size-element">
+                    <input type="number" class="width-size input-resolution">
+                    <div class="size-cross"></div>
+                    <input type="number" class="height-size input-resolution">
+                </div>
+                <div class="resolution-detect size-btn">Détecter mon écran</div>
+                <div class="size-reset size-btn">Par défaut</div>
+            </div>
+            <div class="settings-elements content-center">
+                <label class="fullscreen-toggle">
+                    <input type="checkbox" class="fullscreen-checkbox"> Lancer en plein écran
+                </label>
+            </div>
+            <div class="settings-elements content-center">
+                <label class="fullscreen-toggle">
+                    <input type="checkbox" class="borderless-checkbox"> Fenêtré sans bordure
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── VERSION ── -->
+    <div id="version-tab" class="container-settings content-scroll">
+        <div class="titre-tab">Version de Minecraft</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Choisissez une version officielle de Minecraft, un mod loader et son build exact.
+                Cliquez sur "Appliquer" pour activer, ou "Par défaut" pour revenir à la config normale.
+            </div>
+            <div class="settings-elements content-center mc-version-row">
+                <select class="mc-version-select"></select>
+                <select class="mc-loader-type-select">
+                    <option value="none">Vanilla (sans loader)</option>
+                    <option value="forge">Forge</option>
+                    <option value="neoforge">NeoForge</option>
+                    <option value="fabric">Fabric</option>
+                    <option value="legacyfabric">LegacyFabric</option>
+                    <option value="quilt">Quilt</option>
+                </select>
+                <select class="mc-loader-build-select" disabled>
+                    <option value="">— Vanilla —</option>
+                </select>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="mc-version-apply size-btn">Appliquer</div>
+                <div class="mc-version-reset size-btn">Par défaut</div>
+                <div class="mc-version-open-mods size-btn">Ouvrir le dossier mods</div>
+            </div>
+            <div class="setting-text mc-version-current"></div>
+        </div>
+        <div class="titre-tab">Mes instances</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Toutes les versions créées via "Appliquer". Cliquez pour activer, ou sur la croix pour supprimer.
+            </div>
+            <div class="mc-instances-list"></div>
+        </div>
+    </div>
+
+    <!-- ── MODS ── -->
+    <div id="mods-tab" class="container-settings content-scroll">
+        <div class="titre-tab">Gestionnaire de mods</div>
+        <div class="settings-elements-box">
+            <div class="setting-text mods-instance-info"></div>
+            <div class="settings-elements content-center mods-search-row">
+                <input type="text" class="mods-search-input" placeholder="Rechercher un mod sur Modrinth...">
+                <div class="mods-search-btn size-btn">Rechercher</div>
+            </div>
+            <div class="mods-search-results"></div>
+        </div>
+        <div class="titre-tab">Mods installés</div>
+        <div class="settings-elements-box">
+            <div class="mods-installed-list"></div>
+        </div>
+    </div>
+
+    <!-- ── LAUNCHER ── -->
+    <div id="launcher-tab" class="container-settings content-scroll">
+        <div class="titre-tab">Paramètre de téléchargement</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Nombre maximum de fichiers téléchargés simultanément.</div>
+            <div class="settings-elements content-center">
+                <input type="number" class="max-files input-max-files">
+                <p>Fichiers</p>
+                <div class="max-files-reset max-files-btn">Par défaut</div>
+            </div>
+        </div>
+        <div class="titre-tab">Comportement du launcher au démarrage</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Choisissez si le launcher se ferme automatiquement ou reste ouvert lors du lancement du jeu.</div>
+            <div class="settings-elements content-evenly close-box">
+                <div class="close-launcher close-btn">Fermer le launcher après le démarrage du jeu</div>
+                <div class="close-none close-btn">Garder le launcher ouvert</div>
+                <div class="close-all close-btn">Fermer le jeu si le launcher est fermé</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── THÈME ── -->
+    <div id="theme-tab" class="container-settings content-scroll">
+        <div class="titre-tab">Thème du launcher</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Choisissez une couleur d'accent pour personnaliser l'apparence du launcher.</div>
+            <div class="theme-grid">
+                <div class="theme-swatch" data-theme="theme-violet" title="Violet">
+                    <div class="theme-swatch-color" style="background:linear-gradient(135deg,#a866ff,#7b2ff7)"></div>
+                    <div class="theme-swatch-name">Violet</div>
+                </div>
+                <div class="theme-swatch" data-theme="theme-blue" title="Bleu">
+                    <div class="theme-swatch-color" style="background:linear-gradient(135deg,#60a5fa,#1e40af)"></div>
+                    <div class="theme-swatch-name">Bleu</div>
+                </div>
+                <div class="theme-swatch" data-theme="theme-red" title="Rouge">
+                    <div class="theme-swatch-color" style="background:linear-gradient(135deg,#f43f5e,#be123c)"></div>
+                    <div class="theme-swatch-name">Rouge</div>
+                </div>
+                <div class="theme-swatch" data-theme="theme-green" title="Vert">
+                    <div class="theme-swatch-color" style="background:linear-gradient(135deg,#4ade80,#15803d)"></div>
+                    <div class="theme-swatch-name">Vert</div>
+                </div>
+                <div class="theme-swatch" data-theme="theme-orange" title="Orange">
+                    <div class="theme-swatch-color" style="background:linear-gradient(135deg,#f97316,#c2410c)"></div>
+                    <div class="theme-swatch-name">Orange</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── ADMIN ── -->
+    <div id="admin-tab" class="container-settings content-scroll">
+        <div class="titre-tab">Administration du modpack — <span class="admin-instance-label">.terranova</span></div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Les mods publiés ici sont distribués à tous les joueurs sur l'instance .terranova.
+                Quand tu publies, un bouton "Mettre à jour" apparaît dans leur launcher.
+            </div>
+            <div class="admin-dropzone">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <p>Dépose des fichiers .jar ici, ou clique pour parcourir</p>
+                <input type="file" id="admin-file-input" class="admin-file-input" accept=".jar" multiple hidden>
+            </div>
+            <div class="admin-upload-status"></div>
+            <div class="admin-mods-list"></div>
+            <div class="admin-publish-row">
+                <div class="admin-publish-btn size-btn">Publier</div>
+                <label class="admin-version-label">
+                    Version :
+                    <input type="number" class="admin-version-input" min="1" step="1" placeholder="auto">
+                </label>
+                <div class="admin-publish-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Historique des versions</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Versions publiées précédemment. Clique sur "Restaurer" pour remettre une ancienne version en ligne sans re-uploader les fichiers.
+            </div>
+            <div class="admin-history-list">
+                <div class="admin-history-loading">Chargement...</div>
+            </div>
+            <div class="admin-rollback-status"></div>
+        </div>
+
+        <div class="titre-tab">Instance .terranova — Loader</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">
+                Change la version de Minecraft et le mod loader utilisés par l'instance .terranova. Appliqué pour tous les joueurs au prochain démarrage du launcher.
+            </div>
+            <div class="settings-elements content-evenly admin-loader-row">
+                <div class="settings-element">
+                    <div class="settings-element-text">Version Minecraft</div>
+                    <input type="text" class="admin-loader-mc-version" placeholder="ex: 1.21.1">
+                </div>
+                <div class="settings-element">
+                    <div class="settings-element-text">Loader</div>
+                    <select class="admin-loader-type">
+                        <option value="none">Vanilla</option>
+                        <option value="forge">Forge</option>
+                        <option value="neoforge" selected>NeoForge</option>
+                        <option value="fabric">Fabric</option>
+                        <option value="legacyfabric">LegacyFabric</option>
+                        <option value="quilt">Quilt</option>
+                    </select>
+                </div>
+                <div class="settings-element">
+                    <div class="settings-element-text">Version du loader</div>
+                    <input type="text" class="admin-loader-version" placeholder="ex: 21.1.21.233">
+                </div>
+            </div>
+            <div class="settings-elements content-evenly">
+                <div class="admin-loader-save-btn size-btn">Appliquer</div>
+                <div class="admin-loader-save-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Profil du launcher</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Choisissez l'apparence du launcher. Le changement est appliqué immédiatement.</div>
+            <div class="settings-elements content-center profile-picker-row">
+                <div class="profile-card" data-profile="nebula">
+                    <div class="profile-card-preview nebula-preview">
+                        <div class="profile-card-mockup-navbar"></div>
+                        <div class="profile-card-mockup-body">
+                            <div class="profile-card-mockup-sidebar-right"></div>
+                        </div>
+                    </div>
+                    <div class="profile-card-name">Nebula</div>
+                    <div class="profile-card-desc">Barre du haut · sidebar droite</div>
+                </div>
+                <div class="profile-card" data-profile="terranova">
+                    <div class="profile-card-preview terranova-preview">
+                        <div class="profile-card-mockup-sidebar-left"></div>
+                        <div class="profile-card-mockup-main">
+                            <div class="profile-card-mockup-banner"></div>
+                            <div class="profile-card-mockup-content"></div>
+                        </div>
+                        <div class="profile-card-mockup-right"></div>
+                    </div>
+                    <div class="profile-card-name">TerraNova</div>
+                    <div class="profile-card-desc">Sidebar gauche · banner · statut droit</div>
+                </div>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="profile-apply-btn size-btn">Appliquer</div>
+                <div class="profile-save-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Mode maintenance</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Bloque le lancement du jeu pour tous les joueurs avec un message personnalisé.</div>
+            <div class="settings-elements content-center maintenance-admin-row">
+                <input type="text" class="maintenance-msg-input" placeholder="Message affiché aux joueurs...">
+                <label class="fullscreen-toggle">
+                    <input type="checkbox" class="maintenance-enabled-checkbox"> Activé
+                </label>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="maintenance-save-btn size-btn">Enregistrer</div>
+                <div class="maintenance-save-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Mot du serveur (MOTD)</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Message affiché à tous les joueurs dans leur launcher.</div>
+            <div class="settings-elements content-center motd-admin-row">
+                <input type="text" class="motd-text-input" placeholder="Message du serveur...">
+                <input type="color" class="motd-color-input" value="#f97316" title="Couleur du texte">
+                <label class="fullscreen-toggle motd-enabled-label">
+                    <input type="checkbox" class="motd-enabled-checkbox"> Activé
+                </label>
+            </div>
+            <div class="settings-elements content-center">
+                <div class="motd-save-btn size-btn">Enregistrer le MOTD</div>
+                <div class="motd-save-status"></div>
+            </div>
+        </div>
+
+        <div class="titre-tab">Annonce flash</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Affiche un message d'urgence en rouge dans le launcher de tous les joueurs connectés (redémarrage serveur, événement, etc.). Disparaît automatiquement après la durée indiquée.</div>
+            <div class="settings-elements content-center" style="flex-wrap:wrap;gap:8px;">
+                <input type="text" class="flash-text-input" placeholder="ex: Redémarrage dans 10 min..." style="flex:1;min-width:200px;">
+                <input type="color" class="flash-color-input" value="#ef4444" title="Couleur de la bordure">
+                <input type="number" class="flash-expires-input" placeholder="Durée (min)" min="1" max="1440" style="width:120px;" title="Durée avant expiration automatique">
+            </div>
+            <div class="settings-elements content-center" style="gap:8px;">
+                <div class="flash-send-btn size-btn">📣 Envoyer</div>
+                <div class="flash-clear-btn size-btn" style="background:rgba(255,255,255,0.05);">✕ Effacer</div>
+                <div class="flash-save-status" style="font-size:12px;color:var(--muted);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── ACCUEIL (save) ── -->
+    <div id="save-tab" class="container-settings">
+        <div class="titre-tab">Retour à l'accueil</div>
+        <div class="settings-elements-box">
+            <div class="setting-text">Cliquez sur "MON INSTANCE" dans la sidebar pour revenir à l'accueil.</div>
+        </div>
+    </div>
+
+    <!-- Skin popup -->
+    <div class="skin-popup">
+        <div class="skin-tab">
+            <div class="close-skin-popup icon-close"><i class="fa-solid fa-xmark"></i></div>
+            <p>Gérer le skin</p>
+            <div class="skin-preview"></div>
+            <label class="skin-file-label" for="skin-file-input">Choisir une image PNG (64x64)</label>
+            <input type="file" id="skin-file-input" class="skin-file-input" accept="image/png" hidden>
+            <div class="skin-file-name"></div>
+            <div class="skin-variant-choice">
+                <label><input type="radio" name="skin-variant" value="classic" checked> Classique</label>
+                <label><input type="radio" name="skin-variant" value="slim"> Fine (Alex)</label>
+            </div>
+            <div class="skin-popup-error"></div>
+            <div class="skin-popup-actions">
+                <button class="skin-apply-btn">Appliquer</button>
+                <button class="skin-reset-btn">Réinitialiser par défaut</button>
+            </div>
+        </div>
+    </div>
+
+    </div><!-- /.settings-content-area -->
+
+</div><!-- /.container -->

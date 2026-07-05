@@ -1,0 +1,727 @@
+/* ===== TerraNova Home Panel ===== */
+
+.tn-home {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ===== Main column ===== */
+
+.tn-main-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ===== Banner ===== */
+
+.tn-banner {
+    position: relative;
+    height: 200px;
+    min-height: 200px;
+    flex: none;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%);
+}
+
+.tn-banner-content {
+    position: absolute;
+    bottom: 1.2rem;
+    left: 1.5rem;
+    right: 1.5rem;
+}
+
+.tn-server-name-banner {
+    font-size: 2.4rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+}
+
+.tn-banner-status {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.tn-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-secondary);
+    box-shadow: 0 0 6px var(--accent-secondary);
+    flex: none;
+}
+
+.info-starting-game-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-secondary);
+}
+
+/* MOTD inside banner */
+.motd-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.35rem;
+}
+
+.motd-bar {
+    width: 2px;
+    height: 0.8rem;
+    border-radius: 2px;
+    background: currentColor;
+    flex: none;
+}
+
+.motd-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 340px;
+}
+
+/* ===== Instance card ===== */
+
+.tn-instance-card {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(10, 14, 20, 0.85);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex: none;
+}
+
+.tn-instance-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: contain;
+    background: rgba(255,255,255,0.05);
+    flex: none;
+}
+
+.tn-instance-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.tn-instance-name {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--color);
+}
+
+.tn-instance-badges {
+    margin-top: 0.2rem;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.active-version-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--element-color);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    padding: 0.1rem 0.45rem;
+}
+
+.tn-instance-card-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: none;
+}
+
+.tn-ready-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-secondary);
+    box-shadow: 0 0 5px var(--accent-secondary);
+}
+
+.tn-ready-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent-secondary);
+}
+
+.tn-instance-dots {
+    font-size: 1rem;
+    color: var(--element-color);
+    cursor: pointer;
+    padding: 0 0.25rem;
+    letter-spacing: 1px;
+}
+
+/* ===== Tabs ===== */
+
+.tn-tabs-bar {
+    display: flex;
+    gap: 0;
+    background: rgba(10, 14, 20, 0.85);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 0 1rem;
+    flex: none;
+}
+
+.tn-tab {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--element-color);
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    text-transform: uppercase;
+}
+
+.tn-tab:hover {
+    color: var(--color);
+}
+
+.tn-tab.tn-tab-active {
+    color: var(--accent-secondary);
+    border-bottom-color: var(--accent-secondary);
+}
+
+/* ===== Tab panes ===== */
+
+.tn-tab-pane {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.tn-tab-pane[hidden] {
+    display: none;
+}
+
+.tn-two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.tn-card {
+    background: rgba(10, 14, 20, 0.75);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+}
+
+.tn-card-full {
+    width: 100%;
+}
+
+.tn-card-title {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--element-color);
+    text-transform: uppercase;
+    margin-bottom: 0.65rem;
+}
+
+/* Info rows */
+.tn-info-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.tn-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+}
+
+.tn-info-row > span:first-child {
+    color: var(--element-color);
+}
+
+.tn-info-val {
+    color: var(--color);
+    font-weight: 600;
+    text-align: right;
+    max-width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Server status badge */
+.server-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--element-color);
+    flex-wrap: wrap;
+}
+
+.server-status-badge .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e74c3c;
+    flex: none;
+}
+
+.server-status-badge .status-dot.online {
+    background: var(--accent-secondary);
+    box-shadow: 0 0 5px var(--accent-secondary);
+}
+
+/* Sessions / news */
+.tn-sessions-section {
+    flex: 1;
+}
+
+.tn-news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+/* Mods tab */
+.tn-mods-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 0;
+}
+
+.tn-mods-hint {
+    font-size: 0.78rem;
+    color: var(--element-color);
+}
+
+/* Notes tab */
+.tn-notes-text {
+    font-size: 0.82rem;
+    color: var(--element-color);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* Progress bar — hidden via inline style initially, shown by home.js via style.display="" */
+.tn-progress-bar {
+    width: 100%;
+    height: 3px;
+    appearance: none;
+    border: none;
+    flex: none;
+}
+
+.tn-progress-bar::-webkit-progress-bar {
+    background: rgba(255,255,255,0.06);
+}
+
+.tn-progress-bar::-webkit-progress-value {
+    background: var(--accent-secondary);
+    transition: width 0.2s;
+}
+
+/* Modpack update btn (hidden, lives in mods tab) */
+.modpack-update-btn {
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    color: var(--accent-secondary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: none;
+}
+
+.modpack-update-btn.show {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modpack-update-btn:hover {
+    background: rgba(74, 222, 128, 0.2);
+}
+
+.modpack-update-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ===== Right panel ===== */
+
+.tn-right-panel {
+    width: 240px;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1.25rem 1rem;
+    background: rgba(10, 14, 20, 0.92);
+    border-left: 1px solid rgba(255,255,255,0.06);
+    overflow-y: auto;
+}
+
+/* Play button */
+.play-instance {
+    display: flex;
+    gap: 0.4rem;
+    align-items: stretch;
+}
+
+.play-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.35);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.75rem 0;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.play-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.5);
+}
+
+.play-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.instance-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--element-color);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.85rem;
+}
+
+.instance-select:hover {
+    background: rgba(255,255,255,0.12);
+    color: var(--color);
+}
+
+/* Maintenance blocked state */
+.play-instance.maintenance-blocked {
+    opacity: 0.45;
+    pointer-events: none;
+    filter: grayscale(0.6);
+}
+
+/* Game launching state */
+.play-instance.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Folder button */
+.tn-folder-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--element-color);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.tn-folder-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: var(--color);
+}
+
+.tn-folder-btn i {
+    color: #f59e0b;
+    font-size: 0.8rem;
+}
+
+/* Right panel section title */
+.tn-right-section-title {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--element-color);
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+}
+
+/* Stat rows */
+.tn-stat-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.tn-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+}
+
+.tn-stat-row > span:first-child {
+    color: var(--element-color);
+}
+
+.tn-stat-state {
+    font-weight: 600;
+    color: var(--accent-secondary);
+}
+
+/* ===== TerraNova Settings Panel ===== */
+
+.tn-settings {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.tn-settings-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 0 1.5rem;
+    background: rgba(10, 14, 20, 0.97);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex: none;
+    min-height: 52px;
+    -webkit-app-region: drag;
+}
+
+.tn-settings-title {
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--element-color);
+    text-transform: uppercase;
+    flex: none;
+    -webkit-app-region: no-drag;
+}
+
+.tn-settings-nav {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    flex: 1;
+    height: 100%;
+    -webkit-app-region: no-drag;
+}
+
+.tn-settings-btn {
+    padding: 0 1rem;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--element-color);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.tn-settings-btn:hover {
+    color: var(--color);
+    background: rgba(255,255,255,0.03);
+}
+
+.tn-settings-btn.active-settings-BTN {
+    color: var(--accent-secondary);
+    border-bottom-color: var(--accent-secondary);
+}
+
+.tn-settings-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.5rem 2rem;
+}
+
+/* Override container-settings inside TerraNova settings */
+.tn-settings .container-settings {
+    display: none;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+.tn-settings .active-container-settings {
+    display: block;
+}
+
+/* Section titles */
+.tn-settings .titre-tab {
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--element-color);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    margin-top: 1.4rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.tn-settings .titre-tab:first-child {
+    margin-top: 0;
+}
+
+/* Settings boxes */
+.tn-settings .settings-elements-box {
+    background: rgba(10, 14, 20, 0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 0;
+}
+
+/* Theme swatches */
+.tn-settings .theme-grid {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.tn-settings .theme-swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+}
+
+.tn-settings .theme-swatch:hover,
+.tn-settings .theme-swatch.active-theme {
+    border-color: var(--accent-secondary);
+    background: rgba(255,255,255,0.04);
+}
+
+.tn-settings .theme-swatch-color {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+}
+
+.tn-settings .theme-swatch-name {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--element-color);
+}
+
+/* ===== Instance popup ===== */
+
+.instance-popup {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+}
+
+.instance-popup.open {
+    display: flex;
+}
+
+.instances-tab {
+    background: #0f1419;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 1.2rem;
+    min-width: 260px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.instances-tab p {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color);
+    margin-bottom: 0.8rem;
+}
+
+.close-popup {
+    float: right;
+    cursor: pointer;
+    color: var(--element-color);
+    font-size: 0.9rem;
+    padding: 0.2rem;
+}
+
+.close-popup:hover {
+    color: var(--color);
+}
+
+.instances-List {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
