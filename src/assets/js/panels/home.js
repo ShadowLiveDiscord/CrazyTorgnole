@@ -269,6 +269,13 @@ class Home {
         let accounts = await this.db.readAllData("accounts");
         let selected = configClient?.account_selected;
 
+        // TerraNova : comptes Microsoft uniquement
+        let profile = "nebula";
+        try { profile = await ipcRenderer.invoke("get-active-profile") || "nebula"; } catch {}
+        if (profile === "terranova") {
+            accounts = accounts.filter(a => a.meta?.type === "Xbox");
+        }
+
         dropdown.innerHTML = "";
 
         for (let account of accounts) {

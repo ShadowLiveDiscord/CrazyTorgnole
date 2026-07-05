@@ -361,6 +361,9 @@ class LauncherTerraNova {
         let account_selected = configClient ? configClient.account_selected : null;
         let popupRefresh = new popup();
 
+        // TerraNova : comptes Microsoft uniquement
+        if (accounts?.length) accounts = accounts.filter(a => a.meta?.type === "Xbox");
+
         if (accounts?.length) {
             for (let account of accounts) {
                 let account_ID = account.ID;
@@ -388,9 +391,17 @@ class LauncherTerraNova {
                 }
             }
 
-            accounts = await this.db.readAllData("accounts");
+            accounts = (await this.db.readAllData("accounts")).filter(a => a.meta?.type === "Xbox");
             configClient = await this.db.readData("configClient");
             account_selected = configClient ? configClient.account_selected : null;
+
+            // Si le compte sélectionné est offline, basculer vers le premier compte Xbox
+            let selectedIsXbox = accounts.find(a => a.ID == account_selected);
+            if (account_selected && !selectedIsXbox) {
+                account_selected = null;
+                configClient.account_selected = null;
+                await this.db.updateData("configClient", configClient);
+            }
 
             if (!account_selected) {
                 let uuid = accounts[0]?.ID;
