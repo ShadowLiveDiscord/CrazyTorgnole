@@ -160,7 +160,7 @@ class LauncherTerraNova {
         for (let panel of panels) {
             let div = document.createElement("div");
             div.classList.add("panel", panel.id);
-            let htmlMap = { home: "home-terranova", settings: "settings-terranova" };
+            let htmlMap = { home: "home-terranova", settings: "settings-terranova", login: "login-terranova" };
             let htmlFile = htmlMap[panel.id] || panel.id;
             div.innerHTML = fs.readFileSync(`${__dirname}/panels/${htmlFile}.html`, "utf-8");
             panelsElm.appendChild(div);

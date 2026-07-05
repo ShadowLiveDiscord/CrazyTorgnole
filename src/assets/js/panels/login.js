@@ -69,6 +69,8 @@ class Login {
         let emailOffline = document.querySelector(".email-offline");
         let connectOffline = document.querySelector(".connect-offline");
 
+        if (!connectOffline) return; // section offline absente (profil TerraNova)
+
         connectOffline.addEventListener("click", async () => {
             if (emailOffline.value.length < 3) {
                 popupLogin.openPopup({
