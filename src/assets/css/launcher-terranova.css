@@ -270,6 +270,12 @@ canvas.player-head {
 .account-dropdown-add.disabled { opacity: 0.4; pointer-events: none; }
 .account-count { color: var(--muted); font-size: 11px; }
 
+/* Masque le texte du widget quand le dropdown est ouvert */
+.sidebar-bottom:has(.account-dropdown.show) .sidebar-account .account-details,
+.sidebar-bottom:has(.account-dropdown.show) .sidebar-account .account-widget-chevron {
+    visibility: hidden;
+}
+
 /* ── Sidebar footer ── */
 .tn-sidebar-footer, .sidebar-footer-wrap {
   padding: 0.8rem 0.75rem 1rem;

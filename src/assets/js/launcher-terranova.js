@@ -302,14 +302,27 @@ class LauncherTerraNova {
             let uuid = account?.uuid;
             if (!uuid) return;
             let cleanUuid = uuid.replace(/-/g, "");
-            let imgEl = document.getElementById("tn-body-render");
-            if (!imgEl) return;
-            imgEl.src = `https://crafatar.com/renders/body/${cleanUuid}?scale=3&overlay`;
-            imgEl.style.display = "block";
-            let letterEl = document.getElementById("sidebar-avatar-letter");
-            if (letterEl) letterEl.style.display = "none";
+
+            // Avatar 2D dans le widget compte (tête Crafatar)
             let headEl = document.getElementById("sidebar-avatar-skin");
-            if (headEl) headEl.style.display = "none";
+            if (headEl) {
+                let avatarUrl = `https://crafatar.com/avatars/${cleanUuid}?size=32&overlay`;
+                let probe = new Image();
+                probe.onload = () => {
+                    headEl.style.backgroundImage = `url("${avatarUrl}")`;
+                    headEl.style.display = "block";
+                    let letterEl = document.getElementById("sidebar-avatar-letter");
+                    if (letterEl) letterEl.style.display = "none";
+                };
+                probe.src = avatarUrl;
+            }
+
+            // Corps 3D dans .tn-player-char (entre nav et sidebar-bottom)
+            let bodyEl = document.getElementById("tn-body-render");
+            if (bodyEl) {
+                bodyEl.src = `https://crafatar.com/renders/body/${cleanUuid}?scale=3&overlay`;
+                bodyEl.style.display = "block";
+            }
         } catch (err) {
             console.error("load3DSkin:", err);
         }
